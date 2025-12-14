@@ -45,20 +45,26 @@
             flex-direction: column;
         }
 
-        /* === 4. 顶部状态栏 & 灵动岛 === */
-        .status-bar-area {
-            height: 40px;
-            padding: 5px 25px 0 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            font-weight: 600;
-            font-size: 13px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-            z-index: 200;
-        }
-
+                        <!-- 灵动岛 (HTML结构更新) -->
+                <div class="dynamic-island-trigger" id="island" onclick="toggleIsland()">
+                    <div class="island-content" id="islandContent" onclick="event.stopPropagation()">
+                        <!-- 头像 -->
+                        <img src="https://via.placeholder.com/50/000000/FFFFFF?text=A" id="islandImg" class="island-avatar">
+                        
+                        <!-- 文字 -->
+                        <span id="islandText">欢迎回家</span>
+                        
+                        <!-- 按钮组 -->
+                        <div class="island-btn-group">
+                            <button onclick="changeIsland('kuromi')">库洛米</button>
+                            <button onclick="changeIsland('bear')">轻松熊</button>
+                            <button onclick="changeIsland('clover')">四叶草</button>
+                        </div>
+                        
+                        <!-- 输入框 -->
+                        <input type="text" class="island-input" placeholder="修改文案..." onchange="updateIslandText(this.value)">
+                    </div>
+                </div>
         /* 灵动岛本体 (点击区域) */
         .dynamic-island-trigger {
             position: absolute;
@@ -86,15 +92,82 @@
             font-size: 12px;
         }
         
-        /* 灵动岛展开样式 */
-        .dynamic-island-trigger.expanded {
-            width: 280px;
-            height: 120px;
-            border-radius: 25px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            padding: 15px;
+                /* === 灵动岛样式 (修复版) === */
+        
+        /* 灵动岛本体 (点击区域) */
+        .dynamic-island-trigger {
+            position: absolute;
+            top: 10px; left: 50%;
+            transform: translateX(-50%);
+            width: 100px; height: 30px;
+            background: #000; /* 默认黑色背景 */
+            border-radius: 20px;
+            z-index: 201;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            
+            /* 新增：底图背景设置 (默认不显示，展开才显示) */
+            background-size: cover;
+            background-position: center;
         }
+
+        /* 灵动岛展开后的样子 */
+        .dynamic-island-trigger.expanded {
+            width: 300px;        /* 稍微加宽 */
+            height: 160px;       /* 关键：从120px加高到160px，解决截断问题 */
+            border-radius: 35px;
+            padding: 20px;
+            flex-direction: column;
+            justify-content: flex-start; /* 内容从上往下排 */
+            
+            /* 展开时的半透明黑底，防止文字看不清 */
+            box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.6); 
+        }
+
+        /* 内部内容布局优化 */
+        .island-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; 
+            height: 100%;
+            color: white;
+            font-size: 13px;
+            gap: 12px; /* 增加元素间距 */
+        }
+        
+        /* 三个切换按钮 */
+        .island-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .island-btn-group button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* 输入框美化 */
+        .island-input {
+            width: 90%;
+            height: 32px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            margin: 0 !important; /* 强制覆盖全局样式 */
+        }
+        .island-input::placeholder { color: rgba(255,255,255,0.6); }
 
         /* 灵动岛内的图片形象 */
         .island-avatar {
@@ -207,19 +280,35 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* === 底部白条 (Home Indicator) === */
+                /* === 底部白条 (Home Indicator) - 修复版 === */
         .home-indicator {
             position: absolute;
-            bottom: 8px; left: 0; width: 100%; height: 25px;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 300; cursor: pointer;
+            bottom: 0;           /* 改为贴底 */
+            left: 0;
+            width: 100%;
+            height: 40px;        /* 关键：把高度从 20px 增加到 40px，扩大点击热区 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 让白条靠下显示 */
+            padding-bottom: 8px;   /* 视觉上白条的位置 */
+            z-index: 9999;       /* 关键：强制最高层级，防止被APP遮挡 */
+            cursor: pointer;
+            /* 调试用：如果还点不到，把下面这行注释取消，看看红框在哪里 */
+            /* background: rgba(255, 0, 0, 0.2); */ 
         }
+        
         .home-bar { 
-            width: 130px; height: 5px; 
-            background-color: white; /* 默认白色 */
+            width: 130px; 
+            height: 5px; 
+            background-color: white; 
             border-radius: 100px; 
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            pointer-events: none; /* 让点击穿透白条本身，直接点到父容器 */
+            transition: background-color 0.3s; /* 增加变色过渡动画 */
         }
+        
+        /* 打开APP后白条变黑 */
+        .app-active .home-bar { background-color: #222; }
         /* 打开APP后白条变黑 */
         .app-active .home-bar { background-color: #333; }
 
@@ -402,11 +491,57 @@
         }
         setInterval(updateStatus, 1000);
 
-        // === 2. 灵动岛逻辑 ===
+              // === 2. 灵动岛逻辑 (增强版) ===
         const island = document.getElementById('island');
         const islandContent = document.getElementById('islandContent');
         const islandImg = document.getElementById('islandImg');
-        let islandState = false; // false=收起, true=展开
+        let islandState = false; 
+
+        // 【URL配置区：请在这里填入你的图片链接】
+        const islandConfig = {
+            // 1. 库洛米配置
+            'kuromi': {
+                avatar: 'https://你的库洛米头像链接.png',    // <-- 填这里
+                bg: 'https://你的库洛米背景图链接.jpg'       // <-- 填这里 (灵动岛展开后的底图)
+            },
+            // 2. 轻松熊配置
+            'bear': {
+                avatar: 'https://你的轻松熊头像链接.png',    // <-- 填这里
+                bg: 'https://你的轻松熊背景图链接.jpg'       // <-- 填这里
+            },
+            // 3. 四叶草配置
+            'clover': {
+                avatar: 'https://你的四叶草头像链接.png',    // <-- 填这里
+                bg: 'https://你的四叶草背景图链接.jpg'       // <-- 填这里
+            }
+        };
+
+        function toggleIsland() {
+            islandState = !islandState;
+            if(islandState) {
+                island.classList.add('expanded');
+                // 展开动画延迟显示内容
+                setTimeout(() => islandContent.style.display = 'flex', 250);
+            } else {
+                islandContent.style.display = 'none';
+                island.classList.remove('expanded');
+            }
+        }
+
+        // 切换模式功能
+        function changeIsland(type) {
+            const config = islandConfig[type];
+            if(config) {
+                // 1. 换头像
+                islandImg.src = config.avatar;
+                // 2. 换灵动岛的底图背景
+                island.style.backgroundImage = `url('${config.bg}')`;
+            }
+        }
+
+        function updateIslandText(val) {
+            document.getElementById('islandText').innerText = val;
+        }
 
         // 【URL修改处】你需要在这里填入你的库洛米、轻松熊、四叶草的图片链接
         const islandImages = {
