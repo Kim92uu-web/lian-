@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的马卡龙AI手机</title>
+    <style>
+        /* === 基础设置 === */
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        /* === 手机外壳 === */
+        .phone-case {
+            width: 320px;
+            height: 650px;
+            background-color: #fff;
+            border-radius: 50px;
+            padding: 12px;
+            box-shadow: 0 20px 50px rgba(176, 196, 222, 0.4);
+            position: relative;
+            border: 4px solid #e6e6fa;
+        }
+
+        /* === 屏幕 === */
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 灵动岛 */
+        .notch {
+            width: 100px;
+            height: 25px;
+            background-color: #000;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 100;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            height: 40px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        /* === 桌面图标 === */
+        #home-screen {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, auto);
+            gap: 15px;
+            align-content: start;
+        }
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .app-icon:active { transform: scale(0.9); }
+        .icon-box {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 5px;
+        }
+        .app-name { font-size: 11px; color: #444; }
+        .bg-pink { background-color: #FFB7B2; }
+        .bg-blue { background-color: #A0E7E5; }
+        .bg-purple { background-color: #E2F0CB; }
+        .bg-gray { background-color: #F8F9FA; }
+
+        /* === APP 窗口通用样式 === */
+        .app-window {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            z-index: 50;
+            display: none; /* 默认隐藏 */
+            flex-direction: column;
+            padding-top: 40px;
+        }
+        .app-header {
+            padding: 10px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+        }
+        .app-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+        }
+
+        /* === 设置页面样式 === */
+        .setting-item {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: #fafafa;
+        }
+        button.save-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #FFB7B2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        /* === 聊天页面样式 === */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 80px; /* 到底部留出空间 */
+        }
+        /* 气泡样式 */
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .message.user {
+            align-self: flex-end;
+            background-color: #A0E7E5; /* 用户的气泡颜色 */
+            color: #005c58;
+            border-bottom-right-radius: 4px;
+        }
+        .message.ai {
+            align-self: flex-start;
+            background-color: #fff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        /* 底部输入框 */
+        .chat-input-area {
+            padding: 10px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            padding-bottom: 25px; /* 给Home条留位置 */
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .chat-input-area input {
+            flex: 1;
+            margin: 0;
+            border-radius: 20px;
+            padding-left: 15px;
+        }
+        .chat-input-area button {
+            background: #A0E7E5;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #005c58;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Home条 */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            cursor: pointer;
+        }
+        .home-bar { width: 120px; height: 5px; background-color: #333; border-radius: 10px; opacity: 0.3; }
+
+        /* 加载动画 */
+        .typing { font-style: italic; color: #999; font-size: 12px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="phone-case">
+        <div class="notch"></div>
+        <div class="screen">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <span>12:00</span>
+                <span>✨ 5G</span>
+            </div>
+
+            <!-- === 1. 桌面 === -->
+            <div id="home-screen">
+                <div class="app-icon" onclick="openApp('ai-chat')">
+                    <div class="icon-box bg-blue">🤖</div>
+                    <span class="app-name">AI助手</span>
+                </div>
+                <div class="app-icon" onclick="openApp('settings')">
+                    <div class="icon-box bg-gray">⚙️</div>
+                    <span class="app-name">设置</span>
+                </div>
+                <div class="app-icon">
+                    <div class="icon-box bg-pink">📷</div>
+                    <span class="app-name">相册</span>
+                </div>
+                <div class="app-icon">
+                    <div class="icon-box bg-purple">🎵</div>
+                    <span class="app-name">音乐</span>
+                </div>
+            </div>
+
+            <!-- === 2. 设置 APP === -->
+            <div id="settings-app" class="app-window">
+                <div class="app-header">设置</div>
+                <div class="app-body">
+                    <div class="setting-item">
+                        <label>1. 选择你的AI服务商</label>
+                        <select id="providerSelect">
+                            <option value="deepseek">DeepSeek (深度求索)</option>
+                            <option value="moonshot">Kimi (月之暗面)</option>
+                            <option value="openai">OpenAI (ChatGPT)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label>2. 输入 API Key</label>
+                        <input type="password" id="apiKeyInput" placeholder="请输入 sk- 开头的密钥">
+                        <button class="save-btn" onclick="saveSettings()">保存配置</button>
+                    </div>
+
+                    <div class="setting-item">
+                        <p style="font-size:12px; color:#999; text-align:center;">
+                            密钥仅保存在你的浏览器本地<br>不会上传到其他服务器
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === 3. 聊天 APP === -->
+            <div id="ai-chat-app" class="app-window">
+                <div class="app-header">AI 助手</div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="messageList">
+                        <div class="message ai">你好呀！👋<br>我是你的马卡龙小助手。<br>请先去「设置」里填入 Key，然后就可以和我聊天啦！</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="userMsg" placeholder="发消息..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()">↑</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home条 -->
+            <div class="home-indicator" onclick="goHome()">
+                <div class="home-bar"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // === 1. 核心数据配置 ===
+        // 这里定义了不同 AI 的“门牌号”（接口地址）和“名字”（模型名称）
+        const AI_CONFIG = {
+            'deepseek': {
+                url: 'https://api.deepseek.com/chat/completions',
+                model: 'deepseek-chat'
+            },
+            'moonshot': {
+                url: 'https://api.moonshot.cn/v1/chat/completions',
+                model: 'moonshot-v1-8k'
+            },
+            'openai': {
+                url: 'https://api.openai.com/v1/chat/completions',
+                model: 'gpt-3.5-turbo'
+            }
+        };
+
+        // === 2. 手机系统逻辑 ===
+        function openApp(appId) {
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('settings-app').style.display = 'none';
+            document.getElementById('ai-chat-app').style.display = 'none';
+            
+            // 显示目标APP
+            if(appId === 'settings') {
+                document.getElementById('settings-app').style.display = 'flex';
+            } else if(appId === 'ai-chat') {
+                document.getElementById('ai-chat-app').style.display = 'flex';
+                scrollToBottom();
+            }
+        }
+
+        function goHome() {
+            document.getElementById('settings-app').style.display = 'none';
+            document.getElementById('ai-chat-app').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'grid';
+        }
+
+        // === 3. 设置逻辑 ===
+        function saveSettings() {
+            const provider = document.getElementById('providerSelect').value;
+            const key = document.getElementById('apiKeyInput').value;
+
+            if (!key) {
+                alert('⚠️ 请先输入 API Key 哦！');
+                return;
+            }
+
+            // 保存到浏览器缓存
+            localStorage.setItem('my_ai_provider', provider);
+            localStorage.setItem('my_ai_key', key);
+            alert('✅ 保存成功！快去聊天吧。');
+        }
+
+        // 启动时自动读取保存的设置
+        window.onload = function() {
+            const savedProvider = localStorage.getItem('my_ai_provider');
+            const savedKey = localStorage.getItem('my_ai_key');
+            
+            if (savedProvider) document.getElementById('providerSelect').value = savedProvider;
+            if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+        }
+
+        // === 4. 聊天逻辑 (最重要的大脑！) ===
+        
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('userMsg');
+            const message = input.value.trim();
+            const list = document.getElementById('messageList');
+
+            if (!message) return;
+
+            // 1. 获取用户设置的 Key 和服务商
+            const apiKey = localStorage.getItem('my_ai_key');
+            const provider = localStorage.getItem('my_ai_provider') || 'deepseek';
+
+            if (!apiKey) {
+                addMessage('ai', '⚠️ 还没检测到密钥，请先点击桌面的「设置」去配置一下吧！');
+                return;
+            }
+
+            // 2. 显示用户的消息
+            addMessage('user', message);
+            input.value = ''; // 清空输入框
+
+            // 3. 显示一个“正在输入...”的提示
+            const loadingId = addMessage('ai', '<span class="typing">正在思考...</span>');
+
+            try {
+                // 4. 准备发送给 AI 的数据
+                const config = AI_CONFIG[provider];
+                
+                const response = await fetch(config.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: config.model,
+                        messages: [
+                            {"role": "system", "content": "你是一个语气可爱、乐于助人的AI助手。"},
+                            {"role": "user", "content": message}
+                        ],
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+
+                // 5. 处理 AI 的回复
+                // 先移除“正在思考”
+                const loadingBubble = document.querySelector(`[data-id="${loadingId}"]`);
+                if(loadingBubble) loadingBubble.remove();
+
+                if (data.error) {
+                    addMessage('ai', '❌ 出错了：' + data.error.message);
+                } else {
+                    const aiText = data.choices[0].message.content;
+                    addMessage('ai', aiText);
+                }
+
+            } catch (error) {
+                const loadingBubble = document.querySelector(`[data-id="${loadingId}"]`);
+                if(loadingBubble) loadingBubble.remove();
+                addMessage('ai', '❌ 网络连接失败，请检查 API Key 或网络设置。');
+                console.error(error);
+            }
+        }
+
+        // 在界面上添加一个气泡
+        function addMessage(role, text) {
+            const list = document.getElementById('messageList');
+            const div = document.createElement('div');
+            const id = Date.now(); // 生成一个临时ID
+            div.className = `message ${role}`;
+            div.dataset.id = id;
+            div.innerHTML = text; // 允许 HTML (为了换行)
+            list.appendChild(div);
+            scrollToBottom();
+            return id;
+        }
+
+        function scrollToBottom() {
+            const list = document.getElementById('messageList');
+            list.scrollTop = list.scrollHeight;
+        }
+
+        // 监听回车键发送
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
