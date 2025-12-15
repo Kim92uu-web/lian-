@@ -183,6 +183,30 @@
     font-weight: 300;
 }
 
+/* 在您 <style> 标签的顶部，找到 body 样式并替换/修改 */
+body {
+    /* ... 保持其他属性 ... */
+    /* 替换或修改 font-family 这一行 */
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    /* ... 保持其他属性 ... */
+}
+
+/* 在应用窗口样式区，找到 .app-body 样式并确保它具有充足的 padding */
+.app-body { 
+    flex: 1; 
+    /* 确保内边距足够松弛，离手机框有距离 */
+    padding: 20px; 
+    overflow-y: auto; 
+    color: #333; 
+}
+
+/* 优化 h2 标题的间距 */
+h2 {
+    /* ... 保持原有样式 ... */
+    margin-bottom: 20px; /* 增加标题和配置块之间的距离 */
+    letter-spacing: 0.5px; /* 让标题更舒展 */
+}
+
     </style>
 </head>
 <body>
@@ -277,31 +301,58 @@
             </div>
 
             <!-- 应用窗口：设置 -->
-            <div id="settings-app" class="app-window">
-    <div class="app-header">系统设置</div>
-    <div class="app-body">
-        
-        <div id="settings-main-menu">
-            <a href="#" onclick="loadApiSettings(event)" class="setting-link-item">
-                <span class="text">🤖 AI 服务商配置</span>
-                <span class="arrow">></span>
-            </a>
-            <a href="#" onclick="openWallpaperSettings(event)" class="setting-link-item">
-                <span class="text">📱 修改手机壁纸</span>
-                <span class="arrow">></span>
-            </a>
-            <a href="#" onclick="openWidgetSettings(event)" class="setting-link-item">
-                <span class="text">🧩 小组件管理</span>
-                <span class="arrow">></span>
-            </a>
-        </div>
-        
-        <div id="settings-sub-page" style="display:none;">
-            </div>
+  /* ======================================= */
+/* === [优化] API 配置界面专属样式优化 === */
+/* ======================================= */
 
-    </div>
-</div>
+/* 1. 设置主菜单链接优化：增加行间距和字体大小 */
+.setting-link-item {
+    padding: 18px 0; /* 增加上下间距，让菜单项更松弛 */
+    font-size: 16px; 
+}
+.setting-link-item .text {
+    letter-spacing: 0.2px;
+}
 
+
+/* 2. 配置组间距优化：增加组间距 */
+.setting-group {
+    margin-bottom: 25px; /* 大幅增加配置组之间的距离 */
+}
+
+/* 3. 标签（Label）优化：增加字间距和与输入框的距离 */
+.api-label {
+    margin-bottom: 10px; /* 增加与输入框的距离 */
+    font-size: 15px; /* 略微增大标签字体 */
+    color: #333; /* 让标签更显眼 */
+    letter-spacing: 0.5px; /* 增加字间距 */
+}
+
+/* 4. 输入框/下拉框优化：增加饱满度和边距 */
+.api-input,
+.api-select {
+    padding: 12px 12px; /* 增加内边距，让输入框更饱满 */
+    font-size: 15px;
+    border-radius: 10px; /* 稍微圆润一点 */
+}
+
+/* 5. 按钮优化：增加高度和与上方元素的距离 */
+.api-button {
+    padding: 14px; /* 增加按钮高度 */
+    margin-top: 15px; /* 增加与上方元素的距离 */
+    font-size: 16px;
+    border-radius: 10px;
+    letter-spacing: 0.8px; /* 按钮文字更舒展 */
+}
+
+/* 6. 状态信息优化：增加行高，提升可读性 */
+.status-message {
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.6; /* 增加行间距 */
+    border-radius: 10px;
+}
 
 
             <!-- 应用窗口：相册 -->
@@ -576,6 +627,48 @@ function openWidgetSettings(event) {
     event.preventDefault();
     alert('即将打开小组件管理界面...');
 }
+
+const API_CONFIG_HTML = `
+    <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ccc; padding: 8px 15px; font-size: 14px;"> 
+        < 返回系统设置
+    </button>
+    <div class="api-settings-container">
+        <h2>🤖 AI 服务商配置</h2>
+        
+        <div class="setting-group">
+            <label for="api-provider" class="api-label">选择 API 服务商：</label>
+            <select id="api-provider" class="api-select">
+                <option value="openai">GPT (OpenAI)</option>
+                <option value="gemini">Gemini (Google)</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="custom">自定义/其他 (公益站点)</option>
+            </select>
+        </div>
+        
+        <div class="setting-group">
+            <label for="api-key" class="api-label">API Key / 密钥：</label>
+            <input type="password" id="api-key" class="api-input" placeholder="请输入您的 API 密钥">
+        </div>
+        
+        <div class="setting-group" id="custom-url-group" style="display:none;">
+            <label for="custom-url" class="api-label">API 途径 (站点网址)：</label>
+            <input type="url" id="custom-url" class="api-input" placeholder="例如: https://api.example.com/v1">
+        </div>
+        
+        <div class="setting-group">
+            <label for="model-name" class="api-label">AI 模型名称：</label>
+            <select id="model-name" class="api-select">
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                <option value="deepseek-chat">deepseek-chat</option>
+            </select>
+        </div>
+        
+        <button id="test-connection-btn" class="api-button">测试并保存配置</button>
+        
+        <p id="connection-status" class="status-message">等待测试...</p>
+    </div>
+`;
 
     </script>
 </body>
