@@ -5,27 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我的AI小手机</title>
     <style>
-        /* ======================================= */
-        /* === 引入自定义字体 (可在此处添加，但需文件支持) === */
-        /* ======================================= */
-        /* @font-face {
-            font-family: 'MyCuteFont';
-            src: url('fonts/MyCuteFont.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        } 
-        */
+      /* ======================================= */
+/* === 引入自定义字体 (已修正路径) === */
+/* ======================================= */
+@font-face {
+    font-family: 'GenYoGothicTW'; /* 命名为您的字体系列 */
+    /* ⚠️ 修正路径：直接指向根目录下的文件名 */
+    src: url('GenYoGothicTW-R.ttf') format('truetype'); 
+    font-weight: normal;
+    font-style: normal;
+}
 
         /* === 基础设置 === */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: #f0f2f5;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; 
-            /* 字体优化：引入更清晰的衬线字体栈，优化中文字体显示 */
-            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-            overflow: hidden; 
-        }
+/* ... */
+body {
+    background-color: #f0f2f5;
+    /* ... 其他样式 ... */
+    height: 100vh; 
+    /* 核心修改：将 'GenYoGothicTW' 放在最前面 */
+    font-family: 'GenYoGothicTW', "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    overflow: hidden; 
+}
+
 
         /* === 手机外壳 === */
         .phone-case {
