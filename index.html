@@ -3,433 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的AI小手机</title>
+    <title>我的AI小手机 - 终极修复版</title>
     <style>
         /* ======================================= */
-        /* === 字体设置 === */
+        /* === 核心变量与字体 === */
         /* ======================================= */
+        :root {
+            --ios-blue: #007aff;
+            --ios-gray: #f2f2f7;
+            --ios-separator: #c6c6c8;
+            --safe-area-top: 40px;
+            --safe-area-bottom: 30px;
+        }
+
         @font-face {
-            font-family: 'GenYoGothicTW'; 
-            /* 假设 GenYoGothicTW-R.ttf 放在了根目录 */
-            src: url('GenYoGothicTW-R.ttf') format('truetype'); 
+            font-family: 'GenYoGothicTW';
+            src: local('GenYoGothicTW'), url('GenYoGothicTW-R.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
 
-        /* === 基础设置 === */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background-color: #f0f2f5;
+            background-color: #eef1f5;
             display: flex; justify-content: center; align-items: center;
-            height: 100vh; 
-            font-family: 'GenYoGothicTW', "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-            overflow: hidden; 
+            height: 100vh;
+            font-family: 'GenYoGothicTW', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            user-select: none; /* 防止长按选中文本 */
         }
 
-        /* === 手机外壳 === */
+        /* ======================================= */
+        /* === 手机外壳 (机身) === */
+        /* ======================================= */
         .phone-case {
-            width: 320px; height: 650px;
-            background: #111;
-            border-radius: 45px;
-            box-shadow: 0 0 0 10px #333, 0 20px 50px rgba(0,0,0,0.5);
-            position: relative; overflow: hidden;
-            border: 2px solid #444;
-            transition: all 0.3s ease-out;
+            width: 340px; height: 700px; /* 稍微加大一点尺寸以适应现代感 */
+            background: #1c1c1e;
+            border-radius: 55px;
+            box-shadow: 
+                0 0 0 8px #3a3a3c, 
+                0 0 0 10px #1c1c1e, 
+                0 30px 60px rgba(0,0,0,0.4),
+                inset 0 0 20px rgba(255,255,255,0.1); /* 金属光泽 */
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #000;
+            transition: transform 0.3s ease;
         }
 
-        /* === 屏幕区域 === */
+        /* === 屏幕显示区域 === */
         .screen {
             width: 100%; height: 100%;
-            /* 默认壁纸或加载保存的壁纸 */
-            background: url('https://img.baidu.re/i/2025/12/zcj2xa.jpeg') no-repeat center center/cover;
-            position: relative; overflow: hidden;
-            transition: background-image 0.5s ease;
+            background-color: #000;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+            border-radius: 48px; /* 屏幕圆角 */
+            /* 默认壁纸 */
+            background-image: url('https://images.unsplash.com/photo-1696321703607-4e78b1745749?q=80&w=1000&auto=format&fit=crop'); 
+            transition: filter 0.3s ease;
         }
         
         /* ======================================= */
-        /* === 1. 顶部状态栏 === */
+        /* === 顶部状态栏 & 灵动岛 === */
         /* ======================================= */
         .status-bar-area {
-            position: absolute; top: 0; left: 0; width: 100%; height: 40px;
+            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 10px 0 25px;
-            font-size: 13px; color: white;
-            z-index: 500; font-weight: 600;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            padding: 15px 25px 0 25px;
+            font-size: 14px; color: white;
+            z-index: 1000; font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            pointer-events: none; /* 让点击穿透给灵动岛 */
         }
 
-        /* ======================================= */
-        /* === 2. 灵动岛 === */
-        /* ======================================= */
-        .dynamic-island-trigger {
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            width: 100px; height: 30px;
-            background: #000; border-radius: 20px;
-            z-index: 600; cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* 灵动岛容器 */
+        .dynamic-island-container {
+            position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 35px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 2000; /* 最高层级 */
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性动画 */
             display: flex; align-items: center; justify-content: center;
-            background-size: cover; background-position: center;
+            overflow: hidden;
         }
-        .island-avatar { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px; object-fit: cover; border: 2px solid #fff; }
-        .dynamic-island-trigger.expanded {
-            width: 280px; height: 170px; 
-            border-radius: 35px; padding: 15px;
-            flex-direction: column; justify-content: flex-start;
-            background-color: #000;
-        }
-        .island-content {
-            display: none; flex-direction: column; align-items: center;
-            width: 100%; height: 100%; color: white;
-            animation: fadeIn 0.3s ease;
+        
+        /* 灵动岛展开状态 */
+        .dynamic-island-container.expanded {
+            width: 300px; height: 160px;
+            border-radius: 40px;
+            background: rgba(0,0,0,0.95);
         }
 
+        /* 灵动岛内部内容 (收起时隐藏，展开时显示) */
+        .island-content {
+            display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+            padding: 20px;
+        }
+        .dynamic-island-container.expanded .island-content {
+            opacity: 1; pointer-events: auto; transition-delay: 0.1s;
+        }
+
+        .island-row { display: flex; align-items: center; width: 100%; justify-content: space-between; margin-bottom: 15px; }
+        .island-avatar-large { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
+        .island-text { color: white; flex: 1; margin-left: 10px; font-size: 14px; }
+        .island-controls { display: flex; gap: 15px; }
+        .island-icon { font-size: 24px; cursor: pointer; transition: transform 0.2s; }
+        .island-icon:active { transform: scale(0.8); }
+
         /* ======================================= */
-        /* === 3. 桌面 (User Profile Widget 修正) === */
+        /* === 桌面滑动区域 === */
         /* ======================================= */
         .desktop-slider {
             display: flex;
-            height: calc(100% - 50px); 
-            width: 100%; 
-            overflow-x: auto; 
-            scroll-snap-type: x mandatory; 
-            scrollbar-width: none; 
-            padding-top: 60px;
-            padding-bottom: 20px;
-            z-index: 10;
+            height: 100%; width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            padding-top: 60px; /* 避开灵动岛 */
         }
+        .desktop-slider::-webkit-scrollbar { display: none; }
+
         .page {
-            min-width: 100%; 
-            height: 100%;
-            scroll-snap-align: start; 
+            min-width: 100%; height: 100%;
+            scroll-snap-align: start;
             display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            grid-template-rows: repeat(4, 80px);
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(6, 85px); /* 稍微增加行高 */
             gap: 10px 0;
-            padding: 20px 10px;
+            padding: 10px;
             align-content: start;
-            overflow-y: auto; 
         }
 
-        .widget-area {
-            grid-column: 1 / 5;
-            display: flex; justify-content: center; align-items: flex-start;
-            margin-bottom: 10px; 
+        /* 小组件 (Widget) */
+        .widget-wrapper {
+            grid-column: 1 / 5; grid-row: 1 / 3;
+            padding: 0 10px;
+            margin-bottom: 10px;
         }
         .user-profile-widget {
-            width: 90%;
-            height: 150px;
-            background: rgba(255, 255, 255, 0.2);
-            /* 确保即使图片加载失败，底色也能提供视觉效果 */
-            background-color: rgba(0, 0, 0, 0.4); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 18px;
-            padding: 15px;
+            width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 22px;
+            padding: 20px;
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background-size: cover;
-            background-position: center;
-            cursor: pointer;
-            overflow: hidden; /* 解决背景图可能溢出的问题 */
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden;
+            transition: transform 0.2s;
         }
-        .widget-avatar {
-            width: 50px; height: 50px; border-radius: 50%;
-            border: 3px solid white; object-fit: cover;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        .user-profile-widget:active { transform: scale(0.98); }
+        .widget-bg-layer {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background-size: cover; background-position: center;
+            opacity: 0.6; z-index: -1;
+            filter: blur(2px); /* 背景微模糊，突出文字 */
         }
-        .widget-id { font-size: 18px; font-weight: bold; }
-        .widget-signature { font-size: 12px; opacity: 0.9; margin-top: 2px; }
-        
+
+        /* 应用图标 */
         .app-icon {
             display: flex; flex-direction: column; align-items: center;
-            justify-content: center; text-decoration: none; color: white;
-            font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-            margin-bottom: 0; cursor: pointer;
+            justify-content: flex-start;
+            cursor: pointer;
+            color: white; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
-        .app-icon img {
-            width: 52px; height: 52px; border-radius: 12px; margin-bottom: 5px;
-            background: rgba(255,255,255,0.2); object-fit: cover;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s;
+        .app-icon-img {
+            width: 58px; height: 58px;
+            border-radius: 14px;
+            background: #fff;
+            margin-bottom: 6px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: filter 0.2s, transform 0.2s;
         }
-        .app-icon:active img { filter: brightness(0.8); transform: scale(0.95); }
+        .app-icon:active .app-icon-img { transform: scale(0.9); filter: brightness(0.8); }
+
+        /* 翻页指示器 */
+        .page-indicator {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; z-index: 50;
+        }
+        .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transition: all 0.3s;
+        }
+        .dot.active { background: white; width: 8px; }
 
         /* ======================================= */
-        /* === 4. 应用窗口与聊天界面 (交互冲突修复保持) === */
+        /* === App 窗口通用样式 === */
         /* ======================================= */
         .app-window {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; z-index: 800;
+            background: #f2f2f7; z-index: 3000;
             display: none; flex-direction: column;
-            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
         .app-header {
-            height: 80px; background: #f8f8f8;
-            padding-top: 40px; text-align: center; font-weight: bold;
-            border-bottom: 1px solid #eee;
-            position: relative;
+            height: 90px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-top: 45px; /* 避开状态栏 */
+            text-align: center;
+            font-size: 17px; font-weight: 600;
+            position: relative; flex-shrink: 0;
+            z-index: 10;
         }
-        .chat-container {
-            flex: 1; overflow-y: auto; padding: 10px; background-color: #f7f7f7; 
-        }
-        .chat-input-area {
-            min-height: 50px; 
-            background-color: #f9f9f9;
-            border-top: 1px solid #ddd;
-            display: flex;
-            align-items: flex-start; 
-            /* 关键：底部填充 20px 避开 Home Indicator 区域 */
-            padding: 5px 10px 20px 10px; 
-            position: relative; 
-            z-index: 9998; 
-        }
-        .message-row .avatar {
-            width: 35px; height: 35px; border-radius: 50%; object-fit: cover;
-        }
-        /* 模拟键盘弹起时的效果 */
-        .keyboard-up #ai-app {
-            height: calc(100% - 250px); 
+        .app-body {
+            flex: 1; overflow-y: auto; padding: 20px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* === 5. 底部白条 (home-indicator) === */
+        /* 底部 Home 条 */
         .home-indicator {
-            position: absolute; bottom: 0; left: 0; width: 100%; 
-            height: 30px; 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 35px;
+            z-index: 9999; cursor: pointer;
             display: flex; justify-content: center; align-items: flex-end;
-            padding-bottom: 10px; 
-            z-index: 9999; 
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            padding-bottom: 8px;
         }
         .home-bar {
-            width: 130px; height: 5px; background: white;
-            border-radius: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            pointer-events: none;
+            width: 130px; height: 5px; background: white; border-radius: 100px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
+        .app-active .home-bar { background: #000; } /* 在 App 里变黑 */
 
         /* ======================================= */
-        /* === 设置菜单和 API 界面样式 (保持不变) === */
+        /* === 具体 App 样式：AI 聊天 === */
         /* ======================================= */
-        h2 { margin-bottom: 20px; letter-spacing: 0.5px; }
-        .setting-link-item {
+        .chat-container {
+            flex: 1; overflow-y: auto; padding: 15px; background: #fff;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .message-row { display: flex; align-items: flex-end; margin-bottom: 10px; opacity: 0; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .message-row.right { flex-direction: row-reverse; }
+        
+        .chat-avatar { width: 36px; height: 36px; border-radius: 50%; margin: 0 8px; object-fit: cover; flex-shrink: 0; }
+        .chat-bubble {
+            max-width: 70%; padding: 10px 14px; border-radius: 18px;
+            font-size: 15px; line-height: 1.4; position: relative;
+            word-wrap: break-word;
+        }
+        .left .chat-bubble { background: #e9e9eb; color: #000; border-bottom-left-radius: 4px; }
+        .right .chat-bubble { background: #007aff; color: white; border-bottom-right-radius: 4px; }
+
+        .input-area {
+            background: #f9f9f9; border-top: 1px solid #ddd;
+            padding: 10px 15px 35px 15px; /* 避开 Home Bar */
+            display: flex; align-items: center; gap: 10px;
+            transition: transform 0.3s;
+        }
+        .chat-input {
+            flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc;
+            font-size: 15px; outline: none;
+        }
+        .send-btn {
+            background: #007aff; color: white; border: none; padding: 8px 15px;
+            border-radius: 18px; font-weight: bold; cursor: pointer;
+        }
+
+        /* 键盘模拟 (Push up) */
+        .keyboard-up .input-area { transform: translateY(-260px); }
+        .keyboard-up .chat-container { margin-bottom: 260px; }
+
+        /* ======================================= */
+        /* === 设置页与表单 === */
+        /* ======================================= */
+        .settings-list { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .settings-item {
+            padding: 15px; border-bottom: 1px solid #f0f0f0;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 18px 0; color: #333; text-decoration: none;
-            border-bottom: 1px solid #f0f0f0; font-size: 16px; 
+            cursor: pointer; font-size: 16px; color: #000; text-decoration: none;
         }
-        .api-input, .api-select {
-            display: block; width: 100%; padding: 12px 12px; font-size: 15px;
-            border: 1px solid #ddd; border-radius: 10px; 
+        .settings-item:last-child { border-bottom: none; }
+        .settings-item:active { background: #f2f2f7; }
+        .chevron { color: #c7c7cc; font-weight: bold; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; font-size: 13px; color: #666; }
+        .form-input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;
+            font-size: 16px; background: white;
         }
-        .api-button {
-            width: 100%; padding: 14px; margin-top: 15px; font-size: 16px;
-            border: none; border-radius: 10px; background-color: #007aff;
-            color: white; cursor: pointer; transition: 0.2s; letter-spacing: 0.8px; 
+        .btn-primary {
+            width: 100%; padding: 14px; background: #007aff; color: white;
+            border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;
         }
-        .status-message.success { background-color: #e6ffed; color: #008000; padding: 8px; border-radius: 5px; }
-        .status-message.error { background-color: #ffe6e6; color: #d90000; padding: 8px; border-radius: 5px; }
-        
-        /* --- User Profile App 样式 --- */
-        .profile-preview {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 30px 0; background-color: #f0f0f0; border-radius: 10px;
-            margin-bottom: 20px;
+        .btn-secondary {
+            background: #8e8e93; margin-bottom: 10px;
         }
-        .profile-preview-avatar {
-            width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
-            border: 4px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .profile-bg-preview {
-            width: 100%; height: 100px; background-size: cover; background-position: center;
-            border-radius: 10px; margin-top: 10px; border: 1px dashed #ccc;
-        }
-        
+
     </style>
 </head>
-<body onload="initialize()"> 
+<body onload="initSystem()">
+
     <div class="phone-case" id="phoneCase">
-        <div class="screen">
+        <div class="screen" id="mainScreen">
             
             <div class="status-bar-area">
-                <span id="clock">12:00</span>
-                <span class="status-icons">
-                    <span id="weather">☀️</span> 
-                    <span id="battery">100%🔋</span>
-                    <span>📶</span>
+                <span id="statusBarTime">12:00</span>
+                <span style="display:flex; gap:5px;">
+                    <span id="statusBarSignal">5G</span>
+                    <span id="statusBarBattery">100%</span>
+                    <span>🔋</span>
                 </span>
             </div>
 
-            <div class="dynamic-island-trigger" id="island" onclick="toggleIsland()">
+            <div class="dynamic-island-container" id="dynamicIsland" onclick="toggleIsland()">
                 <div class="island-content" id="islandContent" onclick="event.stopPropagation()">
-                    <img src="https://img.baidu.re/i/2025/12/gxultd.png" id="islandAvatar" class="island-avatar">
-                    <div id="audioBubble" class="audio-bubble"></div>
-                    <div class="island-btn-group">
-                        <img src="https://img.baidu.re/i/2025/12/gxultd.png" class="img-btn" onclick="changeIsland('kuromi', event)">
-                        <img src="https://img.baidu.re/i/2025/12/gxvoni.png" class="img-btn" onclick="changeIsland('bear', event)">
-                        <img src="https://img.baidu.re/i/2025/12/gxw6h4.png" class="img-btn" onclick="changeIsland('clover', event)">
+                    <div class="island-row">
+                        <img src="https://placehold.co/100x100/333/fff?text=Music" class="island-avatar-large">
+                        <div class="island-text">
+                            <div style="font-weight:bold;">正在播放</div>
+                            <div style="opacity:0.7; font-size:12px;">AI 的幻想曲 - 第七章</div>
+                        </div>
+                        <span style="color:#ffcc00;">SoundWave</span>
                     </div>
-                    <input type="text" class="island-input" placeholder="点击这里修改文案..." onchange="updateText(this.value)">
+                    <div class="island-controls">
+                        <span class="island-icon" onclick="alert('上一首')">⏮️</span>
+                        <span class="island-icon" onclick="togglePlay(this)">⏸️</span>
+                        <span class="island-icon" onclick="alert('下一首')">⏭️</span>
+                    </div>
                 </div>
             </div>
 
             <div class="desktop-slider" id="desktopSlider">
                 
                 <div class="page page-1">
-                    <div class="widget-area" style="grid-row: 1 / 3; height: 100%;">
-                        <div class="user-profile-widget" id="userProfileWidget" onclick="openApp('user-profile-app')">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <img src="" id="widgetAvatar" class="widget-avatar">
-                                <div class="widget-info">
-                                    <span id="widgetId" class="widget-id">User10086</span>
-                                    <span id="widgetSignature" class="widget-signature">等待个签...</span>
+                    <div class="widget-wrapper" onclick="openApp('user-profile-app')">
+                        <div class="user-profile-widget" id="userWidget">
+                            <div class="widget-bg-layer" id="widgetBgLayer"></div>
+                            <div style="display: flex; align-items: center; gap: 10px; z-index: 2;">
+                                <img src="https://placehold.co/100x100/ffa500/fff?text=U" id="widgetAvatar" style="width:50px; height:50px; border-radius:50%; border:2px solid white;">
+                                <div>
+                                    <div id="widgetName" style="font-weight:bold; font-size:16px;">User</div>
+                                    <div id="widgetSig" style="font-size:12px; opacity:0.8;">加载中...</div>
                                 </div>
                             </div>
-                            <div style="font-size: 12px; opacity: 0.8;">点击进入个人主页 ></div>
+                            <div style="align-self: flex-end; font-size:12px; opacity:0.6; z-index:2;">Touch to Edit ></div>
                         </div>
                     </div>
-                    
-                    <div style="grid-row: 3; grid-column: 1;"></div>
-                    <div style="grid-row: 3; grid-column: 2;"></div>
-                    <div style="grid-row: 3; grid-column: 3;"></div>
-                    <div style="grid-row: 3; grid-column: 4;"></div>
 
                     <div class="app-icon" onclick="openApp('ai-app')" style="grid-row: 4; grid-column: 1;">
-                        <img src="https://img.baidu.re/i/2025/12/gw1n4f.jpeg">
+                        <img src="https://placehold.co/120x120/007aff/fff?text=AI" class="app-icon-img">
                         <span>AI助手</span>
                     </div>
                     <div class="app-icon" onclick="openApp('settings-app')" style="grid-row: 4; grid-column: 2;">
-                        <img src="https://img.baidu.re/i/2025/12/gvj0se.jpeg">
+                        <img src="https://placehold.co/120x120/8e8e93/fff?text=Set" class="app-icon-img">
                         <span>设置</span>
                     </div>
                     <div class="app-icon" onclick="openApp('gallery-app')" style="grid-row: 4; grid-column: 3;">
-                        <img src="https://img.baidu.re/i/2025/12/gw27ij.jpeg">
+                        <img src="https://placehold.co/120x120/ffcc00/fff?text=Img" class="app-icon-img">
                         <span>相册</span>
                     </div>
-                    <div class="app-icon" onclick="openApp('music-app')" style="grid-row: 4; grid-column: 4;">
-                        <img src="https://img.baidu.re/i/2025/12/gw2drc.jpeg">
+                    <div class="app-icon" onclick="alert('功能开发中')" style="grid-row: 4; grid-column: 4;">
+                        <img src="https://placehold.co/120x120/ff3b30/fff?text=Mu" class="app-icon-img">
                         <span>音乐</span>
                     </div>
-                    
-                    <div style="grid-row: 5; grid-column: 1 / 5;"></div>
+
                 </div>
 
                 <div class="page page-2">
-                    <div class="app-icon" onclick="openApp('forum-app')" style="grid-row: 1; grid-column: 1;">
-                        <img src="https://img.baidu.re/i/2025/12/gw2t70.jpeg">
+                    <div class="app-icon" onclick="alert('论坛模块建设中')" style="grid-row: 1; grid-column: 1;">
+                        <img src="https://placehold.co/120x120/5856d6/fff?text=BBS" class="app-icon-img">
                         <span>论坛</span>
                     </div>
-                    <div class="app-icon" onclick="openApp('extra-app')" style="grid-row: 1; grid-column: 2;">
-                        <img src="https://img.baidu.re/i/2025/12/gw34t4.jpeg">
-                        <span>番外剧场</span>
-                    </div>
-                    <div style="grid-row: 3; grid-column: 1 / 5; text-align:center; color:rgba(255,255,255,0.5);">
-                        <div style="font-size:40px; margin-bottom:10px;">📅</div>
-                        <span>待办事项</span>
+                    <div style="grid-column: 1/5; grid-row: 3; text-align:center; color:rgba(255,255,255,0.5);">
+                        <h2>没有更多内容了</h2>
                     </div>
                 </div>
 
             </div>
-            
+
             <div class="page-indicator" id="pageIndicator">
-                <span class="active"></span>
-                <span></span>
+                <div class="dot active"></div>
+                <div class="dot"></div>
             </div>
 
             <div id="ai-app" class="app-window">
-                <div class="app-header">
-                    <div class="app-status-bar"><span id="chat-clock">12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>
-                    AI 聊天助手
-                </div>
-                
-                <div class="chat-container" id="ai-chat-container">
+                <div class="app-header">AI 智能助手</div>
+                <div class="chat-container" id="chatContainer">
                     <div class="message-row left">
-                        <img src="https://img.baidu.re/i/2025/12/gyw9xz.jpeg" class="avatar" alt="AI Avatar">
-                        <div class="message-bubble">你好！我是你的 AI 聊天助手，请开始和我聊天吧。</div>
+                        <img src="https://placehold.co/100x100/007aff/fff?text=AI" class="chat-avatar">
+                        <div class="chat-bubble">你好！我是你的智能助手。你可以再“设置”中配置 API Key 来激活我，或者直接在这里测试界面。</div>
                     </div>
                 </div>
-                
-                <div class="chat-input-area">
-                    <span class="chat-action-btn">🎤</span>
-                    <input type="text" id="chat-input" placeholder="输入消息..." onfocus="simulateKeyboardUp()" onblur="simulateKeyboardDown()">
-                    <span class="chat-action-btn send-btn" id="send-btn">发送</span>
+                <div class="input-area" id="chatInputArea">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="发消息..." onfocus="keyboardUp()" onblur="keyboardDown()">
+                    <button class="send-btn" onclick="sendMsg()">发送</button>
                 </div>
-                
             </div>
-            
-            <div id="user-profile-app" class="app-window">
-                <div class="app-header">
-                    <div class="app-status-bar"><span id="profile-clock">12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>
-                    个人主页设置
-                </div>
-                <div class="app-body">
-                    <div class="profile-preview">
-                        <img src="" id="appProfileAvatar" class="profile-preview-avatar">
-                        <span id="appProfileId" class="profile-preview-id">User10086</span>
-                        <span id="appProfileSig" class="profile-preview-sig">一个等待 API Key 的手机壳。</span>
-                        <div id="profileBgPreview" class="profile-bg-preview"></div>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="profile-id" class="api-label">👤 昵称/ID：</label>
-                        <input type="text" id="profile-id" class="api-input" placeholder="请输入你的昵称">
-                    </div>
-                    <div class="setting-group">
-                        <label for="profile-signature" class="api-label">✍️ 个人签名：</label>
-                        <input type="text" id="profile-signature" class="api-input" placeholder="请输入你的个人签名">
-                    </div>
-                    <div class="setting-group">
-                        <label for="profile-avatar" class="api-label">🖼️ 头像 URL：</label>
-                        <input type="url" id="profile-avatar" class="api-input" placeholder="请输入头像图片地址">
-                    </div>
-                    <div class="setting-group">
-                        <label for="profile-background" class="api-label">🌄 主页背景 URL：</label>
-                        <input type="url" id="profile-background" class="api-input" placeholder="请输入背景图片地址">
-                    </div>
 
-                    <button class="api-button" onclick="saveUserProfile(event)" style="background-color: #ff9500; margin-top: 20px;">
-                        保存个人信息并应用
-                    </button>
-                    <p id="profile-status" class="status-message" style="margin-top:10px; text-align:center; font-size:12px;">更改将立即生效。</p>
-                </div>
-            </div>
-            
             <div id="settings-app" class="app-window">
-                <div class="app-header">
-                    <div class="app-status-bar"><span id="settings-clock">12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>
-                    系统设置
-                </div>
+                <div class="app-header">系统设置</div>
                 <div class="app-body">
-                    <div id="settings-main-menu">
-                        <a href="#" onclick="loadApiSettings(event)" class="setting-link-item">
-                            <span class="text">🤖 AI 服务商配置</span>
-                            <span class="arrow">></span>
-                        </a>
-                        <a href="#" onclick="openWallpaperSettings(event)" class="setting-link-item">
-                            <span class="text">📱 修改手机壁纸</span>
-                            <span class="arrow">></span>
-                        </a>
-                        <a href="#" onclick="openWidgetSettings(event)" class="setting-link-item">
-                            <span class="text">🧩 小组件管理</span>
-                            <span class="arrow">></span>
-                        </a>
+                    <div class="settings-list">
+                        <div class="settings-item" onclick="openSubPage('api-settings')">
+                            <span>🤖 AI 模型配置</span> <span class="chevron">></span>
+                        </div>
+                        <div class="settings-item" onclick="openSubPage('wallpaper-settings')">
+                            <span>🌄 壁纸设置</span> <span class="chevron">></span>
+                        </div>
+                        <div class="settings-item" onclick="alert('关于本机: AI Phone OS v1.0')">
+                            <span>ℹ️ 关于本机</span> <span class="chevron">></span>
+                        </div>
                     </div>
-                    <div id="settings-sub-page" style="display:none;"></div>
+                </div>
+                <div id="api-settings" class="app-window" style="z-index: 3001;">
+                    <div class="app-header">
+                        <button onclick="closeSubPage('api-settings')" style="position:absolute; left:15px; top:45px; border:none; background:none; color:#007aff; font-size:16px;">返回</button>
+                        API 配置
+                    </div>
+                    <div class="app-body">
+                        <div class="form-group">
+                            <label class="form-label">API Key</label>
+                            <input type="password" id="apiKeyInput" class="form-input" placeholder="sk-...">
+                        </div>
+                        <button class="btn-primary" onclick="saveApiSettings()">保存配置</button>
+                    </div>
+                </div>
+                <div id="wallpaper-settings" class="app-window" style="z-index: 3001;">
+                    <div class="app-header">
+                        <button onclick="closeSubPage('wallpaper-settings')" style="position:absolute; left:15px; top:45px; border:none; background:none; color:#007aff; font-size:16px;">返回</button>
+                        更换壁纸
+                    </div>
+                    <div class="app-body">
+                        <p style="margin-bottom:15px; color:#666; font-size:14px;">输入图片 URL 即可更换壁纸：</p>
+                        <input type="text" id="wallpaperUrlInput" class="form-input" placeholder="https://..." style="margin-bottom:15px;">
+                        <button class="btn-primary" onclick="saveWallpaper()">应用壁纸</button>
+                        <button class="btn-primary btn-secondary" onclick="resetWallpaper()" style="margin-top:10px;">恢复默认</button>
+                    </div>
                 </div>
             </div>
-            
-            <div id="gallery-app" class="app-window"><div class="app-header"><div class="app-status-bar"><span>12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>我的相册</div><div class="app-body">相册内容加载中...</div></div>
-            <div id="music-app" class="app-window"><div class="app-header"><div class="app-status-bar"><span>12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>音乐播放器</div><div class="app-body">🎵 正在播放: With You</div></div>
-            <div id="forum-app" class="app-window"><div class="app-header"><div class="app-status-bar"><span>12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>社区论坛</div><div class="app-body">欢迎来到讨论区...</div></div>
-            <div id="extra-app" class="app-window"><div class="app-header"><div class="app-status-bar"><span>12:00</span> <span class="status-icons"><span>100%🔋</span><span>📶</span></span></div>番外剧场</div><div class="app-body">选择你的角色扮演剧本...</div></div>
 
-            <div class="home-indicator" id="homeBtn" onclick="handleHomeClick(event)">
+            <div id="user-profile-app" class="app-window">
+                <div class="app-header">编辑个人资料</div>
+                <div class="app-body">
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <img src="" id="editAvatarPreview" style="width:80px; height:80px; border-radius:50%; border:3px solid #ddd;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">昵称</label>
+                        <input type="text" id="editName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">个性签名</label>
+                        <input type="text" id="editSig" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">头像 URL</label>
+                        <input type="text" id="editAvatarUrl" class="form-input" onchange="document.getElementById('editAvatarPreview').src = this.value">
+                    </div>
+                    <button class="btn-primary" onclick="saveUserProfile()">保存修改</button>
+                </div>
+            </div>
+
+            <div id="gallery-app" class="app-window">
+                <div class="app-header">相册</div>
+                <div class="app-body" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:2px;">
+                    <div style="aspect-ratio:1; background:#ddd;"></div>
+                    <div style="aspect-ratio:1; background:#ccc;"></div>
+                    <div style="aspect-ratio:1; background:#bbb;"></div>
+                    <div style="aspect-ratio:1; background:#aaa;"></div>
+                </div>
+            </div>
+
+            <div class="home-indicator" id="homeBtn" onclick="goHome()">
                 <div class="home-bar"></div>
             </div>
 
@@ -437,426 +489,236 @@
     </div>
 
     <script>
-        // =====================================================
-        // === [持久化] 全局初始化和辅助函数 ===
-        // =====================================================
-        // 修正默认用户头像 URL，确保它是一个可用的图片
-        const defaultAiAvatar = 'https://img.baidu.re/i/2025/12/gyw9xz.jpeg'; 
-        const defaultUserAvatar = 'https://img.baidu.re/i/2025/12/user-default-avatar.png'; // 假设这是一个有效的默认头像 URL
-        const defaultWallpaper = 'https://img.baidu.re/i/2025/12/zcj2xa.jpeg';
-
-        const defaultProfile = {
-            id: 'User10086',
-            avatar: defaultUserAvatar, 
-            signature: '一个等待API Key的手机壳。',
-            background: defaultWallpaper
+        // ==========================================
+        // === 全局状态与初始化 ===
+        // ==========================================
+        const defaultAvatar = 'https://placehold.co/100x100/ffa500/fff?text=U';
+        const defaultWallpaper = 'https://images.unsplash.com/photo-1696321703607-4e78b1745749?q=80&w=1000&auto=format&fit=crop';
+        
+        let currentUser = {
+            name: 'User10086',
+            sig: '探索无尽的数字世界...',
+            avatar: defaultAvatar,
+            wallpaper: defaultWallpaper
         };
 
-        function loadSetting(key) {
-            try { return localStorage.getItem(key); } catch (e) { console.error("无法访问 localStorage: ", e); return null; }
-        }
-        function saveSetting(key, value) {
-            try { localStorage.setItem(key, value); } catch (e) { console.error("无法保存到 localStorage: ", e); }
-        }
-        
-        function loadUserProfile() {
-            const profile = {};
-            profile.id = loadSetting('profile_id') || defaultProfile.id;
-            profile.avatar = loadSetting('profile_avatar') || defaultProfile.avatar;
-            profile.signature = loadSetting('profile_signature') || defaultProfile.signature;
-            profile.background = loadSetting('profile_background') || defaultProfile.background;
-            return profile;
-        }
-
-        function updateProfileDisplay(profile) {
-            // 桌面 Widget 更新
-            const widget = document.getElementById('userProfileWidget');
-            if(widget) {
-                document.getElementById('widgetId').innerText = profile.id;
-                document.getElementById('widgetSignature').innerText = profile.signature;
-                document.getElementById('widgetAvatar').src = profile.avatar;
-                widget.style.backgroundImage = `url('${profile.background}')`;
-            }
-        }
-
-        function initialize() {
-            // 1. 加载用户配置和显示
-            const userProfile = loadUserProfile();
-            loadSavedWallpaper(); 
-            updateProfileDisplay(userProfile); 
+        // 系统启动
+        function initSystem() {
+            loadData();         // 读取本地存储
+            updateUI();         // 更新所有界面元素
+            startClock();       // 启动时钟
+            setupScroll();      // 启动滑动监听
             
-            // 2. 初始化 Profile App 字段 (确保元素存在)
-            if(document.getElementById('profile-id')) {
-                document.getElementById('profile-id').value = userProfile.id;
-                document.getElementById('profile-signature').value = userProfile.signature;
-                document.getElementById('profile-avatar').value = userProfile.avatar === defaultUserAvatar ? '' : userProfile.avatar;
-                document.getElementById('profile-background').value = userProfile.background === defaultWallpaper ? '' : userProfile.background;
-                
-                // 初始化 Profile App 预览
-                document.getElementById('appProfileAvatar').src = userProfile.avatar;
-                document.getElementById('appProfileId').innerText = userProfile.id;
-                document.getElementById('appProfileSig').innerText = userProfile.signature;
-                document.getElementById('profileBgPreview').style.backgroundImage = `url('${userProfile.background}')`;
-            }
-            
-            // 3. 其他初始化
-            updateTime(); 
-            setupPageIndicator();
-            setupScrollListener();
-            setupChatListeners();
-        }
-        
-        // =====================================================
-        // === User Profile App 逻辑 ===
-        // =====================================================
-        function saveUserProfile(event) {
-            if(event) event.preventDefault();
-            
-            const newId = document.getElementById('profile-id').value.trim() || defaultProfile.id;
-            const newSig = document.getElementById('profile-signature').value.trim() || defaultProfile.signature;
-            let newAvatar = document.getElementById('profile-avatar').value.trim();
-            let newBg = document.getElementById('profile-background').value.trim();
-
-            if (!newAvatar) newAvatar = defaultProfile.avatar;
-            if (!newBg) newBg = defaultProfile.background;
-
-            saveSetting('profile_id', newId);
-            saveSetting('profile_signature', newSig);
-            saveSetting('profile_avatar', newAvatar);
-            saveSetting('profile_background', newBg);
-            
-            const updatedProfile = { id: newId, signature: newSig, avatar: newAvatar, background: newBg };
-            
-            updateProfileDisplay(updatedProfile);
-            
-            // 更新 Profile App 预览
-            document.getElementById('appProfileAvatar').src = updatedProfile.avatar;
-            document.getElementById('appProfileId').innerText = updatedProfile.id;
-            document.getElementById('appProfileSig').innerText = updatedProfile.signature;
-            document.getElementById('profileBgPreview').style.backgroundImage = `url('${updatedProfile.background}')`;
-
-            const statusMsg = document.getElementById('profile-status');
-            statusMsg.innerText = '✅ 个人信息已保存并应用！';
-            statusMsg.classList.add('success');
-            setTimeout(() => {
-                statusMsg.innerText = '更改将立即生效。';
-                statusMsg.classList.remove('success');
-            }, 3000);
-        }
-
-        // =====================================================
-        // === API 配置模块 (核心修复：动态模型模拟保持不变) ===
-        // =====================================================
-        
-        const API_CONFIG_HTML = `
-            <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
-                < 返回系统设置
-            </button>
-            <div class="api-settings-container">
-                <h2>🤖 AI 服务商配置</h2>
-                
-                <div class="setting-group">
-                    <label for="api-provider" class="api-label">选择 API 服务商：</label>
-                    <select id="api-provider" class="api-select">
-                        <option value="openai">GPT (OpenAI)</option>
-                        <option value="gemini">Gemini (Google)</option>
-                        <option value="deepseek">DeepSeek</option>
-                        <option value="custom">自定义/其他 (公益站点)</option>
-                    </select>
-                </div>
-                
-                <div class="setting-group">
-                    <label for="api-key" class="api-label">API Key / 密钥：</label>
-                    <input type="password" id="api-key" class="api-input" placeholder="请输入您的 API 密钥">
-                </div>
-                
-                <div class="setting-group" id="custom-url-group">
-                    <label for="custom-url" class="api-label">API 途径 (站点网址)：</label>
-                    <input type="url" id="custom-url" class="api-input" placeholder="例如: https://api.example.com/v1/chat/completions">
-                </div>
-                
-                <div class="setting-group">
-                    <label for="model-name" class="api-label">AI 模型名称：</label>
-                    <select id="model-name" class="api-select">
-                        <option value="key-specified">🗝️ 使用 Key 附带的模型</option> 
-                        <option value="gpt-4o">gpt-4o (OpenAI)</option>
-                        <option value="gpt-3.5-turbo">gpt-3.5-turbo (OpenAI)</option>
-                        <option value="gemini-2.5-flash">gemini-2.5-flash (Google)</option>
-                        <option value="deepseek-chat">deepseek-chat (DeepSeek)</option>
-                        <option value="custom-model">自定义模型名称</option>
-                    </select>
-                </div>
-                
-                <button id="test-connection-btn" class="api-button">测试并保存配置</button>
-                
-                <p id="connection-status" class="status-message">等待测试...</p>
-            </div>
-        `;
-
-        function initializeApiSettingsInteractions() {
-            const testBtn = document.getElementById('test-connection-btn');
-            
-            const savedProvider = loadSetting('api_provider');
-            const savedKey = loadSetting('api_key');
-            const savedUrl = loadSetting('api_url');
-            const savedModel = loadSetting('api_model');
-
-            // 恢复保存的值
-            if (savedProvider) document.getElementById('api-provider').value = savedProvider;
-            if (savedKey) document.getElementById('api-key').value = savedKey;
-            if (savedUrl) document.getElementById('custom-url').value = savedUrl;
-            if (savedModel) {
-                const modelSelect = document.getElementById('model-name');
-                if (!Array.from(modelSelect.options).some(opt => opt.value === savedModel)) {
-                    const newOption = new Option(savedModel, savedModel, true, true);
-                    modelSelect.add(newOption);
+            // 全局图片错误处理：防止图片挂了很难看
+            document.querySelectorAll('img').forEach(img => {
+                img.onerror = function() {
+                    this.src = 'https://placehold.co/100x100/ccc/999?text=Err';
                 }
-                modelSelect.value = savedModel;
-            }
-            
-            if (testBtn) {
-                testBtn.addEventListener('click', function() {
-                    const statusMsg = document.getElementById('connection-status');
-                    statusMsg.className = 'status-message'; 
-                    statusMsg.innerText = '正在测试连接...请稍候。';
-                    
-                    const provider = document.getElementById('api-provider').value;
-                    const apiKey = document.getElementById('api-key').value;
-                    let customUrl = document.getElementById('custom-url').value;
-                    let modelName = document.getElementById('model-name').value;
-                    
-                    if (!customUrl && provider !== 'custom') {
-                        customUrl = `[使用 ${provider} 的默认 URL]`; 
-                    }
-                    
-                    if (modelName === 'custom-model') {
-                         const userDefinedModel = prompt("请输入您的自定义模型名称：");
-                         if (userDefinedModel) {
-                             modelName = userDefinedModel.trim();
-                             const modelSelect = document.getElementById('model-name');
-                             if (!Array.from(modelSelect.options).some(opt => opt.value === modelName)) {
-                                 const newOption = new Option(modelName, modelName, true, true);
-                                 modelSelect.add(newOption);
-                             }
-                             modelSelect.value = modelName;
-                         } else {
-                             modelName = 'key-specified';
-                             document.getElementById('model-name').value = 'key-specified';
-                         }
-                    }
+            });
+        }
 
-                    setTimeout(() => {
-                        if (apiKey && apiKey.length > 5) {
-                            statusMsg.innerText = `✅ 配置已保存。Key长度：${apiKey.length}。模型设定为：${modelName}。`;
-                            statusMsg.classList.add('success');
-                            
-                            saveSetting('api_provider', provider);
-                            saveSetting('api_key', apiKey);
-                            saveSetting('api_url', customUrl);
-                            saveSetting('api_model', modelName);
-                        } else {
-                            statusMsg.innerText = '⚠️ 请输入您的 API Key。配置未保存。';
-                            statusMsg.classList.add('error');
-                        }
-                    }, 500);
+        // ==========================================
+        // === 数据持久化 (LocalStorage) ===
+        // ==========================================
+        function loadData() {
+            const savedUser = localStorage.getItem('phone_user_data');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('phone_user_data', JSON.stringify(currentUser));
+            updateUI();
+        }
+
+        // 更新所有受数据影响的 UI
+        function updateUI() {
+            // Widget
+            document.getElementById('widgetName').innerText = currentUser.name;
+            document.getElementById('widgetSig').innerText = currentUser.sig;
+            document.getElementById('widgetAvatar').src = currentUser.avatar;
+            // Widget 背景使用壁纸的模糊版
+            document.getElementById('widgetBgLayer').style.backgroundImage = `url('${currentUser.wallpaper}')`;
+            
+            // 壁纸
+            document.getElementById('mainScreen').style.backgroundImage = `url('${currentUser.wallpaper}')`;
+
+            // Profile App 里的输入框回显
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editSig').value = currentUser.sig;
+            document.getElementById('editAvatarUrl').value = currentUser.avatar;
+            document.getElementById('editAvatarPreview').src = currentUser.avatar;
+        }
+
+        // ==========================================
+        // === 灵动岛逻辑 (Dynamic Island) ===
+        // ==========================================
+        const island = document.getElementById('dynamicIsland');
+        let isIslandExpanded = false;
+
+        function toggleIsland() {
+            if (isIslandExpanded) {
+                // 收起
+                island.classList.remove('expanded');
+                isIslandExpanded = false;
+            } else {
+                // 展开
+                island.classList.add('expanded');
+                isIslandExpanded = true;
+            }
+        }
+
+        // 点击外部收起灵动岛
+        document.addEventListener('click', function(e) {
+            if (isIslandExpanded && !island.contains(e.target)) {
+                toggleIsland();
+            }
+        });
+
+        function togglePlay(btn) {
+            btn.innerText = btn.innerText === '⏸️' ? '▶️' : '⏸️';
+        }
+
+        // ==========================================
+        // === 桌面滑动监听 (Scroll Snap) ===
+        // ==========================================
+        function setupScroll() {
+            const slider = document.getElementById('desktopSlider');
+            const dots = document.querySelectorAll('.dot');
+            
+            slider.addEventListener('scroll', () => {
+                const scrollLeft = slider.scrollLeft;
+                const width = slider.offsetWidth;
+                const pageIndex = Math.round(scrollLeft / width);
+                
+                dots.forEach((dot, index) => {
+                    if (index === pageIndex) dot.classList.add('active');
+                    else dot.classList.remove('active');
                 });
-            }
+            });
         }
 
-        function loadApiSettings(event) {
-            if(event) event.preventDefault();
-            const subPageContainer = document.getElementById('settings-sub-page');
-            const mainMenu = document.getElementById('settings-main-menu');
-            
-            subPageContainer.innerHTML = API_CONFIG_HTML;
-            
-            mainMenu.style.display = 'none';
-            subPageContainer.style.display = 'block';
-
-            initializeApiSettingsInteractions(); 
-        }
-
-        // =====================================================
-        // === 聊天消息发送逻辑 (使用全局 Profile 数据) ===
-        // =====================================================
-
-        function createMessageElement(message, isUser) {
-            const row = document.createElement('div');
-            row.className = `message-row ${isUser ? 'right' : 'left'}`;
-            
-            const profile = loadUserProfile();
-            const userAvatar = profile.avatar;
-            const aiAvatar = defaultAiAvatar; 
-            
-            let html = '';
-            if (!isUser) { html += `<img src="${aiAvatar}" class="avatar" alt="AI Avatar">`; }
-            html += `<div class="message-bubble">${message}</div>`;
-            if (isUser) { html += `<img src="${userAvatar}" class="avatar" alt="User Avatar">`; }
-            row.innerHTML = html;
-            return row;
-        }
-
-        function sendMessage() {
-            const inputElement = document.getElementById('chat-input');
-            const container = document.getElementById('ai-chat-container');
-            const messageText = inputElement.value.trim();
-
-            if (messageText === "") {
-                return; 
-            }
-
-            const userMessage = createMessageElement(messageText, true);
-            container.appendChild(userMessage);
-
-            inputElement.value = '';
-
-            scrollToBottom(container);
-            
-            fetchAiResponse(messageText, container);
-        }
-
-        async function fetchAiResponse(userPrompt, container) {
-            const config = getCurrentApiConfig();
-            
-            if (!config.key) {
-                const errorMsg = "请先在“设置”中配置您的 API 密钥！";
-                container.appendChild(createMessageElement(errorMsg, false));
-                scrollToBottom(container);
-                return;
-            }
-            
-            const profile = loadUserProfile();
-            
-            const loadingMsg = createMessageElement('正在思考中...', false);
-            container.appendChild(loadingMsg);
-            scrollToBottom(container);
-            
-            // 模拟 AI 回应
-            setTimeout(() => {
-                container.removeChild(loadingMsg);
-                const response = `我收到了你的消息：${userPrompt}。
-                （AI 知道你的ID是 ${profile.id}，模型是 ${config.model}，并使用 URL ${config.url} 进行通信）`;
-                container.appendChild(createMessageElement(response, false));
-                scrollToBottom(container);
-            }, 1000); 
-        }
-
-        // =====================================================
-        // === 通用函数 (保持不变) ===
-        // =====================================================
-        const phoneCase = document.getElementById('phoneCase');
-        let navStack = []; 
-
-        function getCurrentApiConfig() { 
-            return { 
-                provider: loadSetting('api_provider'), 
-                key: loadSetting('api_key'), 
-                url: loadSetting('api_url'), 
-                model: loadSetting('api_model') 
-            }; 
-        }
-
-        function setupChatListeners() {
-            const sendBtn = document.getElementById('send-btn');
-            const inputElement = document.getElementById('chat-input');
-            
-            sendBtn.onclick = sendMessage;
-
-            inputElement.onkeyup = function(event) {
-                if (event.key === 'Enter') {
-                    sendMessage();
-                }
-            };
-        }
-
-        function simulateKeyboardUp() { 
-            phoneCase.classList.add('keyboard-up'); 
-            setTimeout(() => scrollToBottom(document.getElementById('ai-chat-container')), 300); 
-        }
-        function simulateKeyboardDown() { 
-            phoneCase.classList.remove('keyboard-up'); 
-        }
-        function scrollToBottom(element) { 
-            element.scrollTop = element.scrollHeight; 
-        }
-
-        function updateTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            
-            document.getElementById('clock').innerText = timeStr;
-            const appTimeSpans = document.querySelectorAll('.app-status-bar > span:first-child');
-            appTimeSpans.forEach(span => { span.innerText = timeStr; });
-            
-            const weathers = ['☀️', '☁️', '🌧️', '⚡', '❄️', '🌈'];
-            if(now.getSeconds() % 10 === 0 && now.getSeconds() !== updateTime.lastSecond) {
-                document.getElementById('weather').innerText = weathers[Math.floor(Math.random() * weathers.length)];
-                updateTime.lastSecond = now.getSeconds();
-            }
-        }
-        updateTime.lastSecond = -1; 
-        setInterval(updateTime, 1000);
+        // ==========================================
+        // === App 导航逻辑 ===
+        // ==========================================
+        let appStack = [];
 
         function openApp(appId) {
             const app = document.getElementById(appId);
-            if(app) {
-                if (navStack.length > 0) {
-                    const currentApp = document.getElementById(navStack[navStack.length - 1]);
-                    if(currentApp) currentApp.style.display = 'none';
-                }
-
-                app.style.display = 'flex'; 
-                navStack.push(appId); 
+            if (app) {
+                app.style.display = 'flex';
+                appStack.push(app);
                 document.getElementById('homeBtn').classList.add('app-active');
-                
-                if (appId === 'ai-app') {
-                    scrollToBottom(document.getElementById('ai-chat-container'));
-                }
-                if (appId === 'user-profile-app') {
-                     // 确保进入 Profile 页面时加载最新数据
-                     initialize();
-                }
             }
         }
 
-        function handleHomeClick(e) {
-            if(e) e.stopPropagation(); 
+        function goHome() {
+            // 关闭所有 App
+            appStack.forEach(app => {
+                app.style.display = 'none';
+            });
+            appStack = [];
+            document.getElementById('homeBtn').classList.remove('app-active');
             
-            if (navStack.length > 0) {
-                const currentAppId = navStack.pop();
-                const currentApp = document.getElementById(currentAppId);
-                
-                if(currentApp) {
-                    currentApp.style.display = 'none';
-                    if (currentAppId === 'ai-app') {
-                        phoneCase.classList.remove('keyboard-up');
-                        document.getElementById('chat-input').blur();
-                    }
-                }
-                
-                if (navStack.length > 0) {
-                    const prevApp = document.getElementById(navStack[navStack.length - 1]);
-                    if(prevApp) prevApp.style.display = 'flex';
-                } else {
-                    document.getElementById('homeBtn').classList.remove('app-active');
-                }
+            // 收起键盘
+            keyboardDown();
+            
+            // 收起所有子页面
+            document.querySelectorAll('[id$="-settings"]').forEach(page => page.style.display = 'none');
+        }
+
+        function openSubPage(pageId) {
+            const page = document.getElementById(pageId);
+            if(page) page.style.display = 'flex';
+        }
+        function closeSubPage(pageId) {
+            const page = document.getElementById(pageId);
+            if(page) page.style.display = 'none';
+        }
+
+        // ==========================================
+        // === 具体 App 业务逻辑 ===
+        // ==========================================
+        
+        // 1. 个人资料保存
+        function saveUserProfile() {
+            currentUser.name = document.getElementById('editName').value || currentUser.name;
+            currentUser.sig = document.getElementById('editSig').value || currentUser.sig;
+            currentUser.avatar = document.getElementById('editAvatarUrl').value || currentUser.avatar;
+            saveData();
+            alert('✅ 个人资料已更新');
+            goHome();
+        }
+
+        // 2. 壁纸设置
+        function saveWallpaper() {
+            const url = document.getElementById('wallpaperUrlInput').value;
+            if (url) {
+                currentUser.wallpaper = url;
+                saveData();
+                alert('✅ 壁纸已更换');
             }
         }
-        
-        function setupPageIndicator() { /* ... */ }
-        function setupScrollListener() { /* ... */ }
-        function toggleIsland() { /* ... */ }
-        function changeIsland(type, event) { /* ... */ }
-        function updateText(val) { /* ... */ }
-        function loadSavedWallpaper() { /* ... */ }
-        function openWallpaperSettings(event) { /* ... */ }
-        function openWidgetSettings(event) { /* ... */ alert('即将打开小组件管理界面...');}
-        function showSettingsMainMenu(event) { 
-            if(event) event.preventDefault();
-            document.getElementById('settings-sub-page').style.display = 'none';
-            document.getElementById('settings-main-menu').style.display = 'block';
+        function resetWallpaper() {
+            currentUser.wallpaper = defaultWallpaper;
+            saveData();
+            alert('✅ 壁纸已重置');
         }
-        
+
+        // 3. AI 聊天模拟
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            addMsg(text, 'right');
+            input.value = '';
+            
+            // 模拟回复
+            setTimeout(() => {
+                const replies = [
+                    "收到！但我目前还是个 Demo，没有接入真实 API。",
+                    "你的壁纸真好看！",
+                    `你说 "${text}"，很有道理。`,
+                    "请在设置里检查 API 配置。"
+                ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                addMsg(randomReply, 'left');
+            }, 800);
+        }
+
+        function addMsg(text, side) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = `message-row ${side}`;
+            
+            const avatarUrl = side === 'left' 
+                ? 'https://placehold.co/100x100/007aff/fff?text=AI' 
+                : currentUser.avatar;
+
+            div.innerHTML = `
+                <img src="${avatarUrl}" class="chat-avatar">
+                <div class="chat-bubble">${text}</div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 键盘交互模拟
+        function keyboardUp() { document.getElementById('phoneCase').classList.add('keyboard-up'); }
+        function keyboardDown() { document.getElementById('phoneCase').classList.remove('keyboard-up'); }
+
+        // ==========================================
+        // === 工具函数 ===
+        // ==========================================
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                const time = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                document.getElementById('statusBarTime').innerText = time;
+            }, 1000);
+        }
     </script>
 </body>
 </html>
