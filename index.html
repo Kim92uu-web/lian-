@@ -144,21 +144,38 @@
             gap: 12px; /* 增加元素间距 */
         }
         
-        /* 三个切换按钮 */
+                /* === 灵动岛图片按钮组 === */
         .island-btn-group {
             display: flex;
-            gap: 10px;
+            gap: 15px; /* 按钮间距 */
             margin-top: 5px;
+            width: 100%;
+            justify-content: center;
         }
-        .island-btn-group button {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
+        
+        /* 图片按钮样式 */
+        .img-btn {
+            width: 45px; height: 45px; /* 这里控制按钮大小 */
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .img-btn:active { transform: scale(0.9); border-color: white; }
+
+        /* 语音气泡样式 */
+        .audio-bubble {
+            background: rgba(255,255,255,0.9);
+            color: #333;
             padding: 5px 12px;
             border-radius: 15px;
-            font-size: 11px;
-            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 5px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
         }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* 输入框美化 */
         .island-input {
@@ -284,22 +301,26 @@
             border-bottom: 1px solid #eee;
         }
 
-                /* === 底部白条 (Home Indicator) - 修复版 === */
+                       /* === 底部白条 (终极修复版) === */
         .home-indicator {
             position: absolute;
-            bottom: 0;           /* 改为贴底 */
-            left: 0;
-            width: 100%;
-            height: 40px;        /* 关键：把高度从 20px 增加到 40px，扩大点击热区 */
-            display: flex;
-            justify-content: center;
-            align-items: flex-end; /* 让白条靠下显示 */
-            padding-bottom: 8px;   /* 视觉上白条的位置 */
-            z-index: 9999;       /* 关键：强制最高层级，防止被APP遮挡 */
+            bottom: 0; left: 0; 
+            width: 100%; 
+            height: 50px; /* 再次加大点击区域 */
+            display: flex; justify-content: center; align-items: flex-end;
+            padding-bottom: 10px;
+            z-index: 2147483647; /* 给一个最大整数，确保在宇宙最顶层 */
             cursor: pointer;
-            /* 调试用：如果还点不到，把下面这行注释取消，看看红框在哪里 */
-            /* background: rgba(255, 0, 0, 0.2); */ 
+            -webkit-tap-highlight-color: transparent; /* 去除点击高亮 */
         }
+        .home-bar { 
+            width: 130px; height: 5px; 
+            background-color: white; 
+            border-radius: 100px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            pointer-events: none; /* 让点击穿透条条，直接点到父容器 */
+        }
+        .app-active .home-bar { background-color: #222; }
         
         .home-bar { 
             width: 130px; 
@@ -326,25 +347,57 @@
     <div class="phone-case">
         <div class="screen" id="mainScreen">
             
-            <!-- 1. 顶部状态栏 -->
+                       <!-- 1. 顶部状态栏 & 灵动岛 (升级版) -->
             <div class="status-bar-area">
-                <span id="statusBarTime">12:00</span>
-                <!-- 灵动岛 (点击区域) -->
+                <span id="statusBarTime" style="pointer-events: none;">12:00</span>
+                
+                <!-- 灵动岛本体 -->
                 <div class="dynamic-island-trigger" id="island" onclick="toggleIsland()">
-                    <!-- 收起状态没内容 -->
+                    
+                    <!-- 展开后的内容 -->
                     <div class="island-content" id="islandContent" onclick="event.stopPropagation()">
-                        <!-- 这里的图片需要你自己换 -->
-                        <img src="https://img.baidu.re/i/2025/12/126dzsd.jpeg
-" id="islandImg" class="island-avatar">
-                        <span id="islandText">幸福就是有你在>xing f
-                        <div style="margin-top:10px; display:flex; gap:5px;">
-                            <button onclick="changeIsland('kuromi')" style="font-size:10px;">库洛米</button>
-                            <button onclick="changeIsland('bear')" style="font-size:10px;">轻松熊</button>
-                            <button onclick="changeIsland('clover')" style="font-size:10px;">四叶草</button>
+                        <!-- 头像 -->
+                        <img src="https://via.placeholder.com/50" id="islandImg" class="island-avatar">
+                        
+                        <!-- 语音气泡 (新增功能) -->
+                        <div id="audioBubble" class="audio-bubble" style="display:none;">
+                            🔊 <span id="audioText">...</span>
                         </div>
-                        <input type="text" placeholder="修改文案..." onchange="updateIslandText(this.value)" style="width:80%; height:20px; font-size:10px;">
+                        
+                        <!-- 按钮组 (已改为图片按钮) -->
+                        <div class="island-btn-group">
+                            <!-- 【按钮换图处1】库洛米 -->
+                            <img src="https://img.baidu.re/i/2025/12/grzoc3.png
+" 
+                                 class="img-btn" onclick="changeIsland('kuromi', event)">
+                            
+                            <!-- 【按钮换图处2】轻松熊 -->
+                            <img src="https://img.baidu.re/i/2025/12/gsf8us.png
+" 
+                                 class="img-btn" onclick="changeIsland('bear', event)">
+                            
+                            <!-- 【按钮换图处3】四叶草 -->
+                            <img src="https://img.baidu.re/i/2025/12/gslnl0.png
+" 
+                                 class="img-btn" onclick="changeIsland('clover', event)">
+                        </div>
+                        
+                        <!-- 输入框 -->
+                        <input type="text" class="island-input" placeholder="修改文案..." 
+                               onchange="updateIslandText(this.value)" onclick="event.stopPropagation()">
                     </div>
                 </div>
+
+                <span style="pointer-events: none;"><span id="weatherIcon">☀️</span> 100%</span>
+            </div>
+
+            <!-- ...这里是你原来的 desktop-slider 和 app-window 代码，不要动... -->
+            <!-- ...保持原样... -->
+
+            <!-- 4. 底部 Home 条 (超级修复版：移出遮挡区) -->
+            <div class="home-indicator" id="homeBtn" onclick="handleHomeClick(event)">
+                <div class="home-bar"></div>
+            </div>
                 <!-- 随机天气 + 电量 -->
                 <span><span id="weatherIcon">☀️</span> 100%</span>
             </div>
