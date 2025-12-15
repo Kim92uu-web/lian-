@@ -40,7 +40,7 @@
         /* === 屏幕区域 === */
         .screen {
             width: 100%; height: 100%;
-            /* 默认壁纸 */
+            /* 默认壁纸 - 首次加载时会被 localStorage 覆盖 */
             background: url('https://img.baidu.re/i/2025/12/guvqaq.jpeg') no-repeat center center/cover;
             position: relative; overflow: hidden;
         }
@@ -274,7 +274,7 @@
         }
 
         /* ======================================= */
-        /* === [新增] AI 聊天界面样式 (微信风格) === */
+        /* === AI 聊天界面样式 (微信风格) === */
         /* ======================================= */
 
         .chat-container {
@@ -374,9 +374,7 @@
 
     </style>
 </head>
-<body>
-
-    <div class="phone-case">
+<body onload="initialize()"> <div class="phone-case">
         <div class="screen">
             
             <div class="status-bar-area">
@@ -508,7 +506,48 @@
     </div>
 
     <script>
+        // =====================================================
+        // === [持久化] 全局初始化和数据持久化辅助函数 ===
+        // =====================================================
+        
+        // 辅助函数：从 localStorage 加载数据
+        function loadSetting(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.error("无法访问 localStorage: ", e);
+                return null;
+            }
+        }
+        
+        // 辅助函数：将数据保存到 localStorage
+        function saveSetting(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                console.error("无法保存到 localStorage: ", e);
+            }
+        }
+
+        // 页面启动时执行的初始化函数
+        function initialize() {
+            updateTime(); // 启动时钟
+            loadSavedWallpaper(); // 加载已保存的壁纸
+        }
+        
+        // [新增] 获取当前已保存的 AI 配置
+        function getCurrentApiConfig() {
+            return {
+                provider: loadSetting('api_provider'),
+                key: loadSetting('api_key'),
+                url: loadSetting('api_url'),
+                model: loadSetting('api_model')
+            };
+        }
+
+        // =====================================================
         // === 1. 时间与天气逻辑 ===
+        // =====================================================
         function updateTime() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
@@ -520,9 +559,8 @@
             }
         }
         setInterval(updateTime, 1000);
-        updateTime();
-
-        // === 2. 灵动岛逻辑 ===
+        
+        // === 2. 灵动岛逻辑 (保持不变) ===
         const island = document.getElementById('island');
         const islandContent = document.getElementById('islandContent');
         const audioBubble = document.getElementById('audioBubble');
@@ -573,7 +611,7 @@
             console.log("文案更新为:", val);
         }
 
-        // === 3. APP 打开与退出逻辑 ===
+        // === 3. APP 打开与退出逻辑 (保持不变) ===
         let navStack = []; 
 
         function openApp(appId) {
@@ -583,7 +621,6 @@
                 navStack.push(appId); 
                 document.getElementById('homeBtn').classList.add('app-active');
                 
-                // [新增] 专门处理 AI 聊天应用的初始化
                 if (appId === 'ai-app') {
                     setupChatListeners();
                 }
@@ -617,7 +654,7 @@
 
 
         /* ======================================= */
-        /* === 4. API 配置模块内容 === */
+        /* === 4. API 配置模块内容 (已增加加载和保存逻辑) === */
         /* ======================================= */
 
         const API_CONFIG_HTML = `
@@ -644,15 +681,18 @@
                 
                 <div class="setting-group" id="custom-url-group" style="display:none;">
                     <label for="custom-url" class="api-label">API 途径 (站点网址)：</label>
-                    <input type="url" id="custom-url" class="api-input" placeholder="例如: https://api.example.com/v1">
+                    <input type="url" id="custom-url" class="api-input" placeholder="例如: https://api.example.com/v1/chat/completions">
                 </div>
                 
                 <div class="setting-group">
                     <label for="model-name" class="api-label">AI 模型名称：</label>
                     <select id="model-name" class="api-select">
-                        <option value="gpt-4o">gpt-4o</option>
-                        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-                        <option value="deepseek-chat">deepseek-chat</option>
+                        <option value="gpt-4o">gpt-4o (OpenAI)</option>
+                        <option value="gpt-3.5-turbo">gpt-3.5-turbo (OpenAI)</option>
+                        <option value="gemini-2.5-flash">gemini-2.5-flash (Google)</option>
+                        <option value="gemini-2.5-pro">gemini-2.5-pro (Google)</option>
+                        <option value="deepseek-chat">deepseek-chat (DeepSeek)</option>
+                        <option value="other-model">自定义模型名称</option>
                     </select>
                 </div>
                 
@@ -667,6 +707,18 @@
             const urlGroup = document.getElementById('custom-url-group');
             const testBtn = document.getElementById('test-connection-btn');
             
+            // --- **加载已保存的配置并填充输入框** ---
+            const savedProvider = loadSetting('api_provider');
+            const savedKey = loadSetting('api_key');
+            const savedUrl = loadSetting('api_url');
+            const savedModel = loadSetting('api_model');
+
+            if (savedProvider) document.getElementById('api-provider').value = savedProvider;
+            if (savedKey) document.getElementById('api-key').value = savedKey;
+            if (savedUrl) document.getElementById('custom-url').value = savedUrl;
+            if (savedModel) document.getElementById('model-name').value = savedModel;
+            // ---------------------------------------------------
+            
             if(providerSelect) {
                 providerSelect.addEventListener('change', function() {
                     if (this.value === 'custom') {
@@ -675,7 +727,8 @@
                         urlGroup.style.display = 'none';
                     }
                 });
-                if (providerSelect.value === 'custom') {
+                // 确保加载时也根据 savedProvider 正确显示/隐藏 URL 框
+                if (document.getElementById('api-provider').value === 'custom') {
                     urlGroup.style.display = 'block';
                 }
             }
@@ -686,16 +739,30 @@
                     statusMsg.className = 'status-message'; 
                     statusMsg.innerText = '正在测试连接...请稍候。';
                     
+                    // --- **获取所有配置值** ---
+                    const provider = document.getElementById('api-provider').value;
+                    const apiKey = document.getElementById('api-key').value;
+                    const customUrl = document.getElementById('custom-url').value;
+                    const modelName = document.getElementById('model-name').value;
+                    // --------------------------------
+
                     setTimeout(() => {
-                        const apiKey = document.getElementById('api-key').value;
-                        if (apiKey && apiKey.length > 10) {
-                            statusMsg.innerText = '✅ 连接测试成功！配置已保存。';
+                        // 简单的本地验证：只要 Key 不为空，就认为配置保存成功
+                        if (apiKey && apiKey.length > 5) {
+                            statusMsg.innerText = '✅ 配置已保存。请在 AI 助手中测试连接。';
                             statusMsg.classList.add('success');
+                            
+                            // --- **保存所有配置到 localStorage** ---
+                            saveSetting('api_provider', provider);
+                            saveSetting('api_key', apiKey);
+                            saveSetting('api_url', customUrl);
+                            saveSetting('api_model', modelName);
+                            // --------------------------------------------
                         } else {
-                            statusMsg.innerText = '❌ 连接失败：API Key 似乎是空的或格式不正确。';
+                            statusMsg.innerText = '⚠️ 请输入您的 API Key。配置未保存。';
                             statusMsg.classList.add('error');
                         }
-                    }, 1500); 
+                    }, 500); // 减少延迟
                 });
             }
         }
@@ -715,7 +782,7 @@
         }
 
         /* ======================================= */
-        /* === 5. 壁纸配置模块内容 === */
+        /* === 5. 壁纸配置模块内容 (已增加加载逻辑) === */
         /* ======================================= */
 
         const WALLPAPER_CONFIG_HTML = `
@@ -768,15 +835,13 @@
             initializeWallpaperInteractions();
         }
 
-        // [新增] 壁纸更换核心逻辑
-        
         // 1. URL 模式：应用通过输入框粘贴的 URL
         function applyWallpaperFromUrl() {
             const urlInput = document.getElementById('wallpaper-url-input');
             const url = urlInput.value.trim();
             if (url) {
                 applyNewWallpaper(url);
-                urlInput.value = ''; // 清空输入框
+                urlInput.value = ''; 
             } else {
                 alert('请输入有效的图片 URL 地址！');
             }
@@ -789,21 +854,41 @@
             }
         }
 
-        // 3. 核心函数：实际更换屏幕背景
+        // 3. 核心函数：实际更换屏幕背景 (新增保存)
         function applyNewWallpaper(source) {
             const screen = document.querySelector('.screen');
-            // 设置背景图片，并覆盖掉原来的任何样式
             screen.style.backgroundImage = `url('${source}')`;
             screen.style.backgroundRepeat = 'no-repeat';
             screen.style.backgroundPosition = 'center center';
             screen.style.backgroundSize = 'cover';
             
-            // 提示用户并返回设置主菜单
-            alert('✅ 壁纸已更换成功！');
+            // --- **保存壁纸 URL 到 localStorage** ---
+            saveSetting('wallpaper_url', source);
+            // -------------------------------------------
+            
+            alert('✅ 壁纸已更换成功并保存！');
             showSettingsMainMenu(); 
         }
+        
+        // 4. 页面加载时执行：加载已保存的壁纸
+        function loadSavedWallpaper() {
+            const savedUrl = loadSetting('wallpaper_url');
+            const screen = document.querySelector('.screen');
+            const defaultUrl = 'https://img.baidu.re/i/2025/12/guvqaq.jpeg'; // 默认壁纸 URL
 
-        // 4. 初始化文件选择器交互 (处理本地文件上传)
+            if (savedUrl) {
+                // 如果找到已保存的 URL，则应用它
+                screen.style.backgroundImage = `url('${savedUrl}')`;
+                screen.style.backgroundRepeat = 'no-repeat';
+                screen.style.backgroundPosition = 'center center';
+                screen.style.backgroundSize = 'cover';
+            } else {
+                // 否则应用默认壁纸
+                screen.style.backgroundImage = `url('${defaultUrl}')`;
+            }
+        }
+
+        // 5. 初始化文件选择器交互 (处理本地文件上传)
         function initializeWallpaperInteractions() {
             const fileInput = document.getElementById('wallpaper-file-upload');
             
@@ -813,10 +898,9 @@
                     if (file) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
-                            // Base64 URL (e.target.result) 作为背景源
                             applyNewWallpaper(e.target.result);
                         };
-                        reader.readAsDataURL(file); // 读取文件并转换成 Base64
+                        reader.readAsDataURL(file); 
                     }
                 });
             }
@@ -829,30 +913,25 @@
         }
 
         /* ======================================= */
-        /* === 6. AI 聊天消息发送逻辑 (新功能) === */
+        /* === 6. AI 聊天消息发送逻辑 (实现 API 接入) === */
         /* ======================================= */
 
-        // [新增] 辅助函数：创建消息气泡的 HTML 结构
+        // 辅助函数：创建消息气泡的 HTML 结构
         function createMessageElement(message, isUser) {
             const row = document.createElement('div');
-            // 根据发送者设置方向 ('right' 是用户, 'left' 是 AI)
             row.className = `message-row ${isUser ? 'right' : 'left'}`;
             
-            // 默认头像 URLs (您可以自行替换)
-            const userAvatar = 'https://img.baidu.re/i/2025/12/gxultd.png'; // 用户 (库洛米)
-            const aiAvatar = 'https://img.baidu.re/i/2025/12/gyw9xz.jpeg'; // AI (默认)
+            const userAvatar = 'https://img.baidu.re/i/2025/12/gxultd.png'; 
+            const aiAvatar = 'https://img.baidu.re/i/2025/12/gyw9xz.jpeg'; 
 
             let html = '';
             if (!isUser) {
-                // AI 消息：头像在左
                 html += `<img src="${aiAvatar}" class="avatar" alt="AI Avatar">`;
             }
             
-            // 气泡内容
             html += `<div class="message-bubble">${message}</div>`;
             
             if (isUser) {
-                // 用户消息：头像在右
                 html += `<img src="${userAvatar}" class="avatar" alt="User Avatar">`;
             }
 
@@ -860,17 +939,17 @@
             return row;
         }
 
-        // [新增] 核心函数：发送消息并更新 UI
+        // 核心函数：发送消息并触发 API 请求
         function sendMessage() {
             const inputElement = document.getElementById('chat-input');
             const container = document.getElementById('ai-chat-container');
             const messageText = inputElement.value.trim();
 
             if (messageText === "") {
-                return; // 忽略空消息
+                return; 
             }
 
-            // 1. 生成用户消息气泡并添加到容器
+            // 1. 生成用户消息气泡
             const userMessage = createMessageElement(messageText, true);
             container.appendChild(userMessage);
 
@@ -879,25 +958,127 @@
 
             // 3. 自动滚动到底部
             scrollToBottom(container);
-
-            // 4. [TODO] 模拟 AI 回复 (未来这里将调用 API)
-            simulateAiResponse(container);
+            
+            // 4. **[核心]** 发送真正的 API 请求
+            fetchAiResponse(messageText, container);
         }
 
-        // [新增] 辅助函数：自动滚动到底部
+        // 异步核心函数：与 AI 服务器通信
+        async function fetchAiResponse(userPrompt, container) {
+            // 1. 获取用户配置
+            const config = getCurrentApiConfig();
+            
+            if (!config.key) {
+                const errorMsg = "请先在“设置”中配置您的 API 密钥！";
+                container.appendChild(createMessageElement(errorMsg, false));
+                scrollToBottom(container);
+                return;
+            }
+            
+            // 2. 根据服务商确定 API 目标和格式
+            let apiEndpoint;
+            let headers = {};
+            let body = {};
+
+            switch (config.provider) {
+                case 'openai':
+                case 'deepseek':
+                case 'custom':
+                    // **注意：DeepSeek 和许多公益站点的 API 格式与 OpenAI 兼容。**
+                    
+                    // 确定 API 终端点
+                    apiEndpoint = config.provider === 'custom' ? config.url : 
+                                  config.provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 
+                                  'https://api.openai.com/v1/chat/completions';
+                    
+                    // 如果是自定义 URL，并且没有填写完整路径，我们添加一个默认的 OpenAI 兼容路径
+                    if (config.provider === 'custom' && !apiEndpoint.toLowerCase().includes('/chat/completions')) {
+                         apiEndpoint = apiEndpoint.replace(/\/+$/, "") + '/v1/chat/completions';
+                    }
+
+                    headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.key}`
+                    };
+                    
+                    body = {
+                        model: config.model || 'gpt-4o', 
+                        messages: [{ role: "user", content: userPrompt }]
+                    };
+                    break;
+                    
+                case 'gemini':
+                    // **注意：这是 Gemini API 的简化格式**
+                    apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${config.model || 'gemini-2.5-flash'}:generateContent?key=${config.key}`;
+                    
+                    headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    body = {
+                        contents: [{ role: "user", parts: [{ text: userPrompt }] }]
+                    };
+                    break;
+                    
+                default:
+                    const unknownMsg = `未知的 AI 服务商: ${config.provider}。请检查设置！`;
+                    container.appendChild(createMessageElement(unknownMsg, false));
+                    scrollToBottom(container);
+                    return;
+            }
+            
+            // 3. 发送请求并处理回复
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(body)
+                });
+                
+                // 检查 HTTP 状态码
+                if (!response.ok) {
+                    const errorJson = await response.json();
+                    throw new Error(`API 错误: ${response.status} - ${errorJson.error?.message || response.statusText}`);
+                }
+                
+                const data = await response.json();
+                let aiText = "未能获取到回复。"; 
+                
+                // 解析回复文本 (根据不同的 API 格式)
+                if (config.provider === 'gemini') {
+                    // Gemini 的回复路径
+                    aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || aiText;
+                } else {
+                    // OpenAI/DeepSeek/Custom 的回复路径
+                    aiText = data.choices?.[0]?.message?.content || aiText;
+                }
+
+                // 4. 显示 AI 消息
+                container.appendChild(createMessageElement(aiText, false));
+
+            } catch (error) {
+                const errorDetail = `连接失败或密钥错误：${error.message}`;
+                container.appendChild(createMessageElement(errorDetail, false));
+                console.error("AI API Call Failed:", error);
+
+            } finally {
+                // 确保最终滚动到底部
+                scrollToBottom(container);
+            }
+        }
+
+        // 辅助函数：自动滚动到底部
         function scrollToBottom(element) {
             element.scrollTop = element.scrollHeight;
         }
 
-        // [新增] 辅助函数：监听输入框和按钮
+        // 辅助函数：监听输入框和按钮
         function setupChatListeners() {
             const sendBtn = document.getElementById('send-btn');
             const inputElement = document.getElementById('chat-input');
             
-            // 监听发送按钮点击
             sendBtn.onclick = sendMessage;
 
-            // 监听输入框回车键
             inputElement.onkeyup = function(event) {
                 if (event.key === 'Enter') {
                     sendMessage();
@@ -905,17 +1086,6 @@
             };
         }
         
-        // [新增] 模拟 AI 回复 (待未来替换为真正的 API 调用)
-        function simulateAiResponse(container) {
-            // 模拟打字延迟
-            setTimeout(() => {
-                const aiResponse = "收到您的消息！我们正在处理中。 (这是 AI 模拟回复)";
-                const aiMessage = createMessageElement(aiResponse, false);
-                container.appendChild(aiMessage);
-                scrollToBottom(container);
-            }, 800); 
-        }
-
     </script>
 </body>
 </html>
