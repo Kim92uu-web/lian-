@@ -22,7 +22,7 @@
             background-color: #f0f2f5;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; 
-            /* 替换为更具呼吸感的字体，如果您引入了自定义字体，将其放在最前面 */
+            /* 字体优化：引入更清晰的衬线字体栈，优化中文字体显示 */
             font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
             overflow: hidden; 
         }
@@ -229,7 +229,7 @@
         /* 4. 输入框/下拉框优化：增加饱满度和边距 */
         .api-input,
         .api-select {
-            display: block; /* 确保它们占据一整行 */
+            display: block; 
             width: 100%;
             padding: 12px 12px; 
             font-size: 15px;
@@ -239,7 +239,7 @@
 
         /* 5. 按钮优化：增加高度和与上方元素的距离 */
         .api-button {
-            width: 100%; /* 确保按钮全宽 */
+            width: 100%; 
             padding: 14px; 
             margin-top: 15px; 
             font-size: 16px;
@@ -605,7 +605,18 @@
         // [TODO: 其他设置功能占位函数]
         function openWallpaperSettings(event) {
             event.preventDefault();
-            alert('即将打开修改手机壁纸界面...');
+            // 确保返回主菜单的逻辑能够运行
+            const subPageContainer = document.getElementById('settings-sub-page');
+            const mainMenu = document.getElementById('settings-main-menu');
+            mainMenu.style.display = 'none';
+            subPageContainer.style.display = 'block';
+            subPageContainer.innerHTML = `
+                <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
+                    < 返回系统设置
+                </button>
+                <h2>📱 壁纸设置 (待开发)</h2>
+                <p>这里将是选择和应用新壁纸的界面。</p>
+            `;
         }
         function openWidgetSettings(event) {
             event.preventDefault();
