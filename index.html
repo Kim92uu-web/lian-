@@ -5,28 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我的AI小手机</title>
     <style>
-      /* ======================================= */
-/* === 引入自定义字体 (已修正路径) === */
-/* ======================================= */
-@font-face {
-    font-family: 'GenYoGothicTW'; /* 命名为您的字体系列 */
-    /* ⚠️ 修正路径：直接指向根目录下的文件名 */
-    src: url('GenYoGothicTW-R.ttf') format('truetype'); 
-    font-weight: normal;
-    font-style: normal;
-}
+        /* ======================================= */
+        /* === 引入自定义字体 (已修正路径) === */
+        /* ======================================= */
+        @font-face {
+            font-family: 'GenYoGothicTW'; 
+            /* 假设 GenYoGothicTW-R.ttf 放在了根目录 */
+            src: url('GenYoGothicTW-R.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
 
         /* === 基础设置 === */
-/* ... */
-body {
-    background-color: #f0f2f5;
-    /* ... 其他样式 ... */
-    height: 100vh; 
-    /* 核心修改：将 'GenYoGothicTW' 放在最前面 */
-    font-family: 'GenYoGothicTW', "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-    overflow: hidden; 
-}
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #f0f2f5;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; 
+            /* 引用您的自定义字体 */
+            font-family: 'GenYoGothicTW', "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            overflow: hidden; 
+        }
 
         /* === 手机外壳 === */
         .phone-case {
@@ -41,6 +40,7 @@ body {
         /* === 屏幕区域 === */
         .screen {
             width: 100%; height: 100%;
+            /* 默认壁纸 */
             background: url('https://img.baidu.re/i/2025/12/guvqaq.jpeg') no-repeat center center/cover;
             position: relative; overflow: hidden;
         }
@@ -161,7 +161,7 @@ body {
         /* 布局松弛和全局边距优化 */
         .app-body { 
             flex: 1; 
-            padding: 20px; /* 增加全局内边距，离手机框有距离 */
+            padding: 20px; 
             overflow-y: auto; 
             color: #333; 
         }
@@ -180,46 +180,34 @@ body {
         .app-active .home-bar { background: #222; }
 
         /* ======================================= */
-        /* === [新增] 设置菜单和 API 界面样式优化 === */
+        /* === 设置菜单和 API 界面样式优化 === */
         /* ======================================= */
         
-        /* 优化 h2 标题的间距 */
         h2 {
             margin-bottom: 20px; 
             letter-spacing: 0.5px;
         }
 
-        /* 1. 设置主菜单链接优化：增加行间距和字体大小 */
+        /* 1. 设置主菜单链接优化 */
         .setting-link-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 18px 0; /* 增加上下间距，让菜单项更松弛 */
+            padding: 18px 0; 
             color: #333;
             text-decoration: none;
             border-bottom: 1px solid #f0f0f0;
             font-size: 16px; 
         }
-        .setting-link-item:last-child {
-            border-bottom: none;
-        }
-        .setting-link-item:active {
-            background-color: #f8f8f8; 
-        }
-        .setting-link-item .arrow {
-            color: #ccc;
-            font-weight: 300;
-        }
-        .setting-link-item .text {
-            letter-spacing: 0.2px;
-        }
+        .setting-link-item:last-child { border-bottom: none; }
+        .setting-link-item:active { background-color: #f8f8f8; }
+        .setting-link-item .arrow { color: #ccc; font-weight: 300; }
+        .setting-link-item .text { letter-spacing: 0.2px; }
 
-        /* 2. 配置组间距优化：增加组间距 */
-        .setting-group {
-            margin-bottom: 25px; 
-        }
+        /* 2. 配置组间距优化 */
+        .setting-group { margin-bottom: 25px; }
 
-        /* 3. 标签（Label）优化：增加字间距和与输入框的距离 */
+        /* 3. 标签（Label）优化 */
         .api-label {
             margin-bottom: 10px; 
             font-size: 15px; 
@@ -227,7 +215,7 @@ body {
             letter-spacing: 0.5px; 
         }
 
-        /* 4. 输入框/下拉框优化：增加饱满度和边距 */
+        /* 4. 输入框/下拉框优化 */
         .api-input,
         .api-select {
             display: block; 
@@ -238,7 +226,7 @@ body {
             border-radius: 10px; 
         }
 
-        /* 5. 按钮优化：增加高度和与上方元素的距离 */
+        /* 5. 按钮优化 */
         .api-button {
             width: 100%; 
             padding: 14px; 
@@ -252,11 +240,9 @@ body {
             transition: 0.2s;
             letter-spacing: 0.8px; 
         }
-        .api-button:active {
-            filter: brightness(0.9);
-        }
+        .api-button:active { filter: brightness(0.9); }
 
-        /* 6. 状态信息优化：增加行高，提升可读性 */
+        /* 6. 状态信息优化 */
         .status-message {
             margin-top: 20px;
             padding: 15px;
@@ -266,13 +252,25 @@ body {
             background-color: #f8f8f8;
             text-align: center;
         }
-        .status-message.success {
-            background-color: #e6ffed;
-            color: #008000;
+        .status-message.success { background-color: #e6ffed; color: #008000; }
+        .status-message.error { background-color: #ffe6e6; color: #d90000; }
+
+        /* ======================================= */
+        /* === [新增] 壁纸设置界面缩略图样式 === */
+        /* ======================================= */
+        .preset-wallpaper-thumb {
+            width: 70px; 
+            height: 100px; 
+            object-fit: cover; 
+            border-radius: 8px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .status-message.error {
-            background-color: #ffe6e6;
-            color: #d90000;
+        .preset-wallpaper-thumb:hover,
+        .preset-wallpaper-thumb:active {
+            border-color: #007aff; 
+            transform: scale(1.05);
         }
         
     </style>
@@ -492,12 +490,23 @@ body {
                 }
             }
         }
+        
+        // -----------------------------------------------------
+        // 以下是设置 App 的子页面配置和功能逻辑
+        // -----------------------------------------------------
+
+        // 1. 返回设置主菜单 (API 和壁纸模块共用)
+        function showSettingsMainMenu(event) {
+            if(event) event.preventDefault();
+            document.getElementById('settings-sub-page').style.display = 'none';
+            document.getElementById('settings-main-menu').style.display = 'block';
+        }
+
 
         /* ======================================= */
-        /* === [新增] API 配置模块内容 (已修复) === */
+        /* === 4. API 配置模块内容 === */
         /* ======================================= */
 
-        // 步骤二：在这里定义 API 配置页面的 HTML 模板
         const API_CONFIG_HTML = `
             <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
                 < 返回系统设置
@@ -540,31 +549,6 @@ body {
             </div>
         `;
 
-
-        // 步骤三：定义加载和交互函数
-
-        // 1. 加载 API 配置界面
-        function loadApiSettings(event) {
-            if(event) event.preventDefault();
-            const subPageContainer = document.getElementById('settings-sub-page');
-            const mainMenu = document.getElementById('settings-main-menu');
-            
-            subPageContainer.innerHTML = API_CONFIG_HTML;
-            
-            mainMenu.style.display = 'none';
-            subPageContainer.style.display = 'block';
-
-            initializeApiSettingsInteractions(); 
-        }
-
-        // 2. 返回设置主菜单
-        function showSettingsMainMenu(event) {
-            if(event) event.preventDefault();
-            document.getElementById('settings-sub-page').style.display = 'none';
-            document.getElementById('settings-main-menu').style.display = 'block';
-        }
-
-        // 3. 运行 API 配置的交互逻辑
         function initializeApiSettingsInteractions() {
             const providerSelect = document.getElementById('api-provider');
             const urlGroup = document.getElementById('custom-url-group');
@@ -603,22 +587,129 @@ body {
             }
         }
 
-        // [TODO: 其他设置功能占位函数]
-        function openWallpaperSettings(event) {
-            event.preventDefault();
-            // 确保返回主菜单的逻辑能够运行
+        // 加载 API 配置界面
+        function loadApiSettings(event) {
+            if(event) event.preventDefault();
             const subPageContainer = document.getElementById('settings-sub-page');
             const mainMenu = document.getElementById('settings-main-menu');
+            
+            subPageContainer.innerHTML = API_CONFIG_HTML;
+            
             mainMenu.style.display = 'none';
             subPageContainer.style.display = 'block';
-            subPageContainer.innerHTML = `
-                <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
-                    < 返回系统设置
-                </button>
-                <h2>📱 壁纸设置 (待开发)</h2>
-                <p>这里将是选择和应用新壁纸的界面。</p>
-            `;
+
+            initializeApiSettingsInteractions(); 
         }
+
+        /* ======================================= */
+        /* === 5. 壁纸配置模块内容 (新功能) === */
+        /* ======================================= */
+
+        const WALLPAPER_CONFIG_HTML = `
+            <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
+                < 返回系统设置
+            </button>
+            <div class="wallpaper-settings-container">
+                <h2>🖼️ 更换手机壁纸</h2>
+                
+                <div class="setting-group">
+                    <label for="wallpaper-file-upload" class="api-label">从相册/本地选择图片：</label>
+                    <input type="file" id="wallpaper-file-upload" class="api-input" accept="image/*" style="border:none; padding-left:0;">
+                    <p style="font-size:12px; color:#999; margin-top:5px;">图片只存储在您的浏览器缓存中，不会被上传。</p>
+                </div>
+                
+                <div style="text-align:center; margin: 25px 0; color:#ccc;">— 或 —</div>
+
+                <div class="setting-group">
+                    <label for="wallpaper-url-input" class="api-label">输入网络图片 URL 地址：</label>
+                    <input type="url" id="wallpaper-url-input" class="api-input" placeholder="例如: https://example.com/new_bg.jpg">
+                </div>
+
+                <button class="api-button" onclick="applyWallpaperFromUrl()">应用网络图片为壁纸</button>
+                
+                <div style="text-align:center; margin: 25px 0; color:#ccc;">— 或 —</div>
+                
+                <div class="setting-group">
+                    <label class="api-label">选择预设壁纸：</label>
+                    <div id="preset-wallpaper-list" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                        <img src="https://img.baidu.re/i/2025/12/guvqaq.jpeg" class="preset-wallpaper-thumb" onclick="applyWallpaperUrl('https://img.baidu.re/i/2025/12/guvqaq.jpeg')">
+                        <img src="https://img.baidu.re/i/2025/12/gyw9xz.jpeg" class="preset-wallpaper-thumb" onclick="applyWallpaperUrl('https://img.baidu.re/i/2025/12/gyw9xz.jpeg')">
+                        <img src="https://img.baidu.re/i/2025/12/gw2t70.jpeg" class="preset-wallpaper-thumb" onclick="applyWallpaperUrl('https://img.baidu.re/i/2025/12/gw2t70.jpeg')">
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 加载壁纸设置界面
+        function openWallpaperSettings(event) {
+            if(event) event.preventDefault();
+            const subPageContainer = document.getElementById('settings-sub-page');
+            const mainMenu = document.getElementById('settings-main-menu');
+            
+            subPageContainer.innerHTML = WALLPAPER_CONFIG_HTML;
+            
+            mainMenu.style.display = 'none';
+            subPageContainer.style.display = 'block';
+
+            // 运行核心交互逻辑
+            initializeWallpaperInteractions();
+        }
+
+        // [新增] 壁纸更换核心逻辑
+        
+        // 1. URL 模式：应用通过输入框粘贴的 URL
+        function applyWallpaperFromUrl() {
+            const urlInput = document.getElementById('wallpaper-url-input');
+            const url = urlInput.value.trim();
+            if (url) {
+                applyNewWallpaper(url);
+                urlInput.value = ''; // 清空输入框
+            } else {
+                alert('请输入有效的图片 URL 地址！');
+            }
+        }
+
+        // 2. 预设模式：应用预设或外部点击的 URL
+        function applyWallpaperUrl(url) {
+            if (url) {
+                applyNewWallpaper(url);
+            }
+        }
+
+        // 3. 核心函数：实际更换屏幕背景
+        function applyNewWallpaper(source) {
+            const screen = document.querySelector('.screen');
+            // 设置背景图片，并覆盖掉原来的任何样式
+            screen.style.backgroundImage = `url('${source}')`;
+            screen.style.backgroundRepeat = 'no-repeat';
+            screen.style.backgroundPosition = 'center center';
+            screen.style.backgroundSize = 'cover';
+            
+            // 提示用户并返回设置主菜单
+            alert('✅ 壁纸已更换成功！');
+            showSettingsMainMenu(); 
+        }
+
+        // 4. 初始化文件选择器交互 (处理本地文件上传)
+        function initializeWallpaperInteractions() {
+            const fileInput = document.getElementById('wallpaper-file-upload');
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Base64 URL (e.target.result) 作为背景源
+                            applyNewWallpaper(e.target.result);
+                        };
+                        reader.readAsDataURL(file); // 读取文件并转换成 Base64
+                    }
+                });
+            }
+        }
+        
+        // [TODO: 其他设置功能占位函数]
         function openWidgetSettings(event) {
             event.preventDefault();
             alert('即将打开小组件管理界面...');
