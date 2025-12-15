@@ -277,16 +277,31 @@
             </div>
 
             <!-- 应用窗口：设置 -->
-            <<div id="settings-app" class="app-window">
+            <div id="settings-app" class="app-window">
     <div class="app-header">系统设置</div>
-    <div class="app-body" id="settings-body-content">
+    <div class="app-body">
+        
         <div id="settings-main-menu">
-            </div>
+            <a href="#" onclick="loadApiSettings(event)" class="setting-link-item">
+                <span class="text">🤖 AI 服务商配置</span>
+                <span class="arrow">></span>
+            </a>
+            <a href="#" onclick="openWallpaperSettings(event)" class="setting-link-item">
+                <span class="text">📱 修改手机壁纸</span>
+                <span class="arrow">></span>
+            </a>
+            <a href="#" onclick="openWidgetSettings(event)" class="setting-link-item">
+                <span class="text">🧩 小组件管理</span>
+                <span class="arrow">></span>
+            </a>
+        </div>
         
         <div id="settings-sub-page" style="display:none;">
             </div>
+
     </div>
 </div>
+
 
 
             <!-- 应用窗口：相册 -->
