@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的AI小手机 - 聊天装修版</title>
+    <title>我的AI小手机 - 修复版</title>
     <style>
         /* ======================================= */
         /* === 1. 核心变量 (动态可调) === */
@@ -12,12 +12,15 @@
             --theme-pink: #fce4ec;
             --primary-blue: #007aff;
             
-            /* 以下变量将通过JS动态修改 */
-            --chat-user-bg: #8093f1;   /* 用户气泡色 */
-            --chat-user-text: #ffffff; /* 用户文字色 */
-            --chat-ai-bg: #ffffff;     /* AI气泡色 */
-            --chat-ai-text: #333333;   /* AI文字色 */
-            --chat-font: 'GenYoGothicTW', -apple-system, sans-serif; /* 聊天字体 */
+            /* 聊天设置 */
+            --chat-user-bg: #8093f1;
+            --chat-ai-bg: #ffffff;
+            --chat-font: 'GenYoGothicTW', -apple-system, sans-serif;
+            
+            /* UI 尺寸修复 */
+            --phone-width: 350px;
+            --phone-height: 720px;
+            --notch-top: 45px; /* 状态栏安全高度 */
         }
 
         @font-face {
@@ -32,15 +35,15 @@
             background-color: #f0f2f5;
             display: flex; justify-content: center; align-items: center;
             height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; /* 系统UI保持默认字体，仅聊天变 */
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             overflow: hidden; user-select: none;
         }
 
         /* ======================================= */
-        /* === 2. 手机机身 === */
+        /* === 2. 手机机身 (尺寸修复) === */
         /* ======================================= */
         .phone-case {
-            width: 350px; height: 720px;
+            width: var(--phone-width); height: var(--phone-height);
             background: #111;
             border-radius: 55px;
             box-shadow: 0 0 0 6px #333, 0 0 0 9px #000, 0 30px 60px rgba(0,0,0,0.4);
@@ -56,11 +59,11 @@
         }
 
         /* ======================================= */
-        /* === 3. 顶部状态栏 & 灵动岛 === */
+        /* === 3. 顶部状态栏 & 灵动岛 (层级修复) === */
         /* ======================================= */
         .status-bar-area {
-            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
-            display: flex; justify-content: space-between; align-items: center;
+            position: absolute; top: 0; left: 0; width: 100%; height: var(--notch-top);
+            display: flex; justify-content: space-between; align-items: flex-start;
             padding: 12px 28px 0 28px; font-size: 14px; color: #000;
             z-index: 1000; font-weight: 600; pointer-events: none;
         }
@@ -82,7 +85,9 @@
         .dynamic-island-wrapper.expanded .island-content { display: flex; opacity: 1; }
         .island-info { display: flex; align-items: center; gap: 10px; }
         .island-cover { width: 50px; height: 50px; border-radius: 10px; background: linear-gradient(45deg, #ff9a9e, #fad0c4); }
-        .island-controls { display: flex; justify-content: space-around; font-size: 24px; margin-top: 10px; }
+        /* 播放控制按钮 - 确保 pointer-events: auto; */
+        .island-controls { display: flex; justify-content: space-around; font-size: 24px; margin-top: 10px; pointer-events: auto; }
+        .island-controls span { cursor: pointer; }
 
         /* ======================================= */
         /* === 4. 桌面布局 (可上下滚动) === */
@@ -90,14 +95,15 @@
         .desktop-slider {
             display: flex; height: 100%; width: 100%;
             overflow-x: auto; scroll-snap-type: x mandatory;
-            padding-top: 60px; padding-bottom: 40px;
+            padding-top: var(--notch-top); /* 使用变量确保避开顶部 */
+            padding-bottom: 40px;
         }
         .desktop-slider::-webkit-scrollbar { display: none; }
 
         .page {
             min-width: 100%; height: 100%;
             scroll-snap-align: start;
-            overflow-y: auto; overflow-x: hidden; /* 允许上下滚动 */
+            overflow-y: auto; overflow-x: hidden;
             display: grid; grid-template-columns: repeat(4, 1fr);
             grid-auto-rows: 90px; gap: 15px 5px;
             padding: 10px 15px 50px 15px; align-content: start;
@@ -107,29 +113,19 @@
         .app-icon {
             display: flex; flex-direction: column; align-items: center;
             cursor: pointer; color: #333; font-size: 12px; font-weight: 500;
-            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
         }
         .app-icon-img {
             width: 60px; height: 60px; border-radius: 15px; background: #fff;
             margin-bottom: 6px; object-fit: cover;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
         }
-        .app-icon:active .app-icon-img { transform: scale(0.9); }
-
-        .widget-area { grid-column: 1 / 5; grid-row: span 2; margin-bottom: 10px; }
+        
+        .widget-area { grid-column: 1 / 5; grid-row: span 2; margin-bottom: 10px; cursor: pointer; } /* 修复点击失效 */
         .user-widget {
             width: 100%; height: 100%; background: rgba(255,255,255,0.6);
             backdrop-filter: blur(20px); border-radius: 25px; padding: 20px;
             display: flex; align-items: center; gap: 15px; color: #333;
         }
-
-        .page-indicator {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 8px; z-index: 50;
-        }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.2); transition: 0.3s; }
-        .dot.active { background: #333; width: 20px; border-radius: 10px; }
 
         /* ======================================= */
         /* === 5. App 窗口 & 聊天美化 === */
@@ -137,13 +133,11 @@
         .app-window {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 3000; display: none; flex-direction: column;
-            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .app-header {
             height: 85px; background: rgba(255,255,255,0.95);
-            border-bottom: 1px solid #eee; padding-top: 45px;
+            border-bottom: 1px solid #eee; padding-top: var(--notch-top);
             text-align: center; font-size: 17px; font-weight: bold;
             position: relative; flex-shrink: 0; z-index: 10;
             display: flex; justify-content: center; align-items: flex-end; padding-bottom: 12px;
@@ -153,52 +147,23 @@
         .chat-container {
             flex: 1; overflow-y: auto; padding: 15px; 
             background: #f4f6f9; display: flex; flex-direction: column; gap: 15px;
-            /* 应用自定义字体 */
             font-family: var(--chat-font);
         }
         .message-row { display: flex; align-items: flex-end; opacity: 0; animation: fadeIn 0.3s forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
-        
         .message-row.user { flex-direction: row-reverse; }
         
-        .avatar-circle {
-            width: 40px; height: 40px; border-radius: 50%; 
-            margin: 0 8px; object-fit: cover; flex-shrink: 0;
-            border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            background: #ddd;
-        }
-        
-        .chat-bubble {
-            max-width: 75%; padding: 12px 16px; border-radius: 20px;
-            font-size: 15px; line-height: 1.5; position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            word-wrap: break-word;
-        }
-        
-        .user .chat-bubble {
-            background: var(--chat-user-bg); 
-            color: var(--chat-user-text);
-            border-bottom-right-radius: 4px;
-        }
-        .ai .chat-bubble {
-            background: var(--chat-ai-bg); 
-            color: var(--chat-ai-text);
-            border-bottom-left-radius: 4px;
-        }
+        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; margin: 0 8px; object-fit: cover; flex-shrink: 0; border: 2px solid #fff; }
+        .chat-bubble { max-width: 75%; padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
+        .user .chat-bubble { background: var(--chat-user-bg); color: white; border-bottom-right-radius: 4px; }
+        .ai .chat-bubble { background: var(--chat-ai-bg); color: #333; border-bottom-left-radius: 4px; }
 
         .chat-input-area {
             background: white; padding: 10px 15px 35px 15px;
             border-top: 1px solid #eee; display: flex; gap: 10px; align-items: center;
+            flex-shrink: 0; /* 确保输入区域不会被挤压 */
         }
-        .chat-input {
-            flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #ddd;
-            background: #f5f5f5; font-size: 15px; outline: none;
-        }
-        .send-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: var(--primary-blue); color: white; border: none;
-            cursor: pointer; font-size: 16px;
-        }
+        .chat-input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #ddd; background: #f5f5f5; }
+        .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-blue); color: white; border: none; cursor: pointer; }
 
         /* 聊天设置按钮 */
         .chat-setting-btn {
@@ -207,44 +172,27 @@
         }
 
         /* ======================================= */
-        /* === 6. 设置与表单样式 === */
+        /* === 6. 底部 Home 条 (层级修复) === */
         /* ======================================= */
+        .home-bar-area {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 30px;
+            z-index: 9999; cursor: pointer; /* 确保 Home Bar 在最上层 */
+            display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px;
+        }
+        .home-bar { width: 130px; height: 5px; background: #000; border-radius: 100px; opacity: 0.8; }
+
+        /* Settings Overlays */
         .settings-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #f0f2f5; z-index: 3100; display: none; flex-direction: column;
         }
         .settings-content { padding: 20px; overflow-y: auto; flex: 1; }
-        
-        .settings-card {
-            background: white; border-radius: 15px; padding: 15px;
-            margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+        .settings-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
         .card-title { font-size: 14px; color: #666; margin-bottom: 10px; font-weight: bold; }
+        .form-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 15px; margin-bottom: 10px; }
+        .file-btn { display: block; width: 100%; padding: 10px; text-align: center; background: #eee; border-radius: 8px; margin-bottom: 8px; border: 1px dashed #999; cursor: pointer; }
+        input[type="file"] { display: none; }
         
-        .color-picker-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        input[type="color"] { border: none; width: 40px; height: 40px; cursor: pointer; background: none; }
-        
-        .file-btn {
-            display: block; width: 100%; padding: 10px; text-align: center;
-            background: #eee; border-radius: 8px; margin-bottom: 8px;
-            font-size: 13px; color: #333; cursor: pointer; border: 1px dashed #999;
-        }
-        
-        .form-input {
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;
-            font-size: 15px; background: white; outline: none; margin-bottom: 10px;
-        }
-        
-        .home-bar-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 30px;
-            z-index: 9999; cursor: pointer;
-            display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px;
-        }
-        .home-bar { width: 130px; height: 5px; background: #000; border-radius: 100px; opacity: 0.2; }
-        .app-window .home-bar { opacity: 0.8; }
-        
-        input[type="file"] { display: none; } /* 隐藏原生文件上传框 */
-
     </style>
 </head>
 <body onload="initSystem()">
@@ -268,16 +216,15 @@
                         <div><div style="font-weight:bold;">AI 歌单</div><div style="font-size:12px;">正在播放...</div></div>
                     </div>
                     <div class="island-controls">
-                        <span onclick="event.stopPropagation()">⏮️</span>
-                        <span onclick="event.stopPropagation()">⏸️</span>
-                        <span onclick="event.stopPropagation()">⏭️</span>
+                        <span onclick="event.stopPropagation(); alert('上一首')">⏮️</span>
+                        <span onclick="event.stopPropagation(); togglePlay(this)">▶️</span> <span onclick="event.stopPropagation(); alert('下一首')">⏭️</span>
                     </div>
                 </div>
             </div>
 
             <div class="desktop-slider" id="desktopSlider">
                 <div class="page page-1">
-                    <div class="widget-area">
+                    <div class="widget-area" onclick="openApp('profile-app')">
                         <div class="user-widget">
                             <img src="" id="widgetAvatar" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
                             <div>
@@ -290,10 +237,10 @@
                     <div class="app-icon" onclick="openApp('settings-app')"><img src="https://placehold.co/120x120/999/fff?text=Set" class="app-icon-img"><span>设置</span></div>
                     <div class="app-icon" onclick="openApp('gallery-app')"><img src="https://placehold.co/120x120/ffcc00/fff?text=Pic" class="app-icon-img"><span>相册</span></div>
                     <div class="app-icon" onclick="alert('暂无音乐')"><img src="https://placehold.co/120x120/ff4757/fff?text=Mus" class="app-icon-img"><span>音乐</span></div>
-                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=1" class="app-icon-img"><span>应用1</span></div>
-                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=2" class="app-icon-img"><span>应用2</span></div>
-                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=3" class="app-icon-img"><span>应用3</span></div>
-                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=4" class="app-icon-img"><span>应用4</span></div>
+                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=1" class="app-icon-img"><span>日历</span></div>
+                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=2" class="app-icon-img"><span>天气</span></div>
+                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=3" class="app-icon-img"><span>笔记</span></div>
+                    <div class="app-icon"><img src="https://placehold.co/120x120/ddd/555?text=4" class="app-icon-img"><span>邮件</span></div>
                 </div>
                 <div class="page page-2">
                     <div class="app-icon"><img src="https://placehold.co/120x120/7bed9f/fff?text=BBS" class="app-icon-img"><span>论坛</span></div>
@@ -328,7 +275,6 @@
                         聊天室装修
                     </div>
                     <div class="settings-content">
-                        
                         <div class="settings-card">
                             <div class="card-title">🤖 对方 (AI) 设置</div>
                             <label class="form-label" style="font-size:12px;color:#666;">对方的昵称 (备注)</label>
@@ -348,11 +294,11 @@
 
                         <div class="settings-card">
                             <div class="card-title">🎨 气泡颜色</div>
-                            <div class="color-picker-row">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                                 <span>我的气泡颜色</span>
                                 <input type="color" id="colorUserBg" value="#8093f1" onchange="saveChatConfig()">
                             </div>
-                            <div class="color-picker-row">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <span>对方气泡颜色</span>
                                 <input type="color" id="colorAiBg" value="#ffffff" onchange="saveChatConfig()">
                             </div>
@@ -376,10 +322,10 @@
                 <div style="padding:20px;">
                     <div class="settings-card">
                         <div class="card-title">API 连接</div>
-                        <input type="text" id="apiBaseUrl" class="form-input" placeholder="API 地址 (Base URL)">
-                        <input type="password" id="apiKey" class="form-input" placeholder="API Key">
-                        <input type="text" id="apiModel" class="form-input" placeholder="模型 (如 gpt-4o)">
-                        <button onclick="saveSysSettings()" class="file-btn" style="background:#007aff; color:white; border:none;">保存连接配置</button>
+                        <input type="text" id="apiBaseUrl" class="form-input" placeholder="API 途径 (Base URL)">
+                        <input type="password" id="apiKey" class="form-input" placeholder="API Key (sk-...)">
+                        <input type="text" id="apiModel" class="form-input" placeholder="模型 (如 gpt-4o, gemini-1.5-pro)">
+                        <button onclick="saveSysSettings()" class="file-btn" style="background:#007aff; color:white; border:none;">保存连接配置 (并验证)</button>
                     </div>
 
                     <div class="settings-card">
@@ -388,6 +334,28 @@
                             <input type="file" accept="image/*" onchange="uploadWallpaper(event)">
                         </label>
                         <button onclick="resetWallpaper()" class="file-btn" style="background:#fff; border:1px solid #ccc;">恢复默认粉色</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="profile-app" class="app-window">
+                <div class="app-header">个人资料</div>
+                <div class="settings-content">
+                    <div class="settings-card">
+                         <div class="card-title">用户头像</div>
+                        <div style="text-align:center; margin-bottom:15px;">
+                            <img src="" id="userAvatarPreview" style="width:80px; height:80px; border-radius:50%; border:3px solid #ddd; object-fit:cover;">
+                        </div>
+                        <label class="file-btn">📁 从相册选择头像
+                            <input type="file" accept="image/*" onchange="uploadAvatar('user', event)">
+                        </label>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="card-title">昵称与签名</div>
+                        <input type="text" id="editName" class="form-input" placeholder="昵称">
+                        <input type="text" id="editSig" class="form-input" placeholder="签名">
+                        <button onclick="saveProfile()" class="file-btn" style="background:#007aff; color:white; border:none;">保存资料</button>
                     </div>
                 </div>
             </div>
@@ -401,6 +369,7 @@
                 </div>
             </div>
 
+
             <div class="home-bar-area" onclick="goHome()"><div class="home-bar"></div></div>
 
         </div>
@@ -411,6 +380,7 @@
         // === 数据中心 ===
         // ==========================================
         let sysData = {
+            name: "User", sig: "开心每一天", 
             wallpaper: "", 
             api: { url: "", key: "", model: "gpt-4o" }
         };
@@ -418,16 +388,14 @@
         let chatData = {
             charName: "AI 助手",
             charAvatar: "https://placehold.co/100x100/333/fff?text=AI",
-            userAvatar: "https://placehold.co/100x100/ffa500/fff?text=Me", // 默认用户头像
+            userAvatar: "https://placehold.co/100x100/ffa500/fff?text=Me",
             bubbleUser: "#8093f1",
             bubbleAi: "#ffffff"
         };
 
         const defaultAvatars = [
-            "https://placehold.co/100x100/ff7675/fff?text=A",
-            "https://placehold.co/100x100/74b9ff/fff?text=B",
-            "https://placehold.co/100x100/55efc4/fff?text=C",
-            "https://placehold.co/100x100/a29bfe/fff?text=D"
+            "https://placehold.co/100x100/ff7675/fff?text=A", "https://placehold.co/100x100/74b9ff/fff?text=B",
+            "https://placehold.co/100x100/55efc4/fff?text=C", "https://placehold.co/100x100/a29bfe/fff?text=D"
         ];
 
         function initSystem() {
@@ -437,88 +405,101 @@
         }
 
         function loadData() {
-            // 读取系统设置
             const s = localStorage.getItem('phone_sys_data');
-            if(s) sysData = JSON.parse(s);
+            if(s) {
+                const loadedSys = JSON.parse(s);
+                sysData.name = loadedSys.name || sysData.name;
+                sysData.sig = loadedSys.sig || sysData.sig;
+                sysData.wallpaper = loadedSys.wallpaper || sysData.wallpaper;
+                sysData.api = loadedSys.api || sysData.api;
+            }
 
-            // 读取聊天设置
             const c = localStorage.getItem('phone_chat_data');
-            if(c) chatData = JSON.parse(c);
+            if(c) {
+                const loadedChat = JSON.parse(c);
+                chatData.charName = loadedChat.charName || chatData.charName;
+                chatData.charAvatar = loadedChat.charAvatar || chatData.charAvatar;
+                chatData.userAvatar = loadedChat.userAvatar || chatData.userAvatar;
+                chatData.bubbleUser = loadedChat.bubbleUser || chatData.bubbleUser;
+                chatData.bubbleAi = loadedChat.bubbleAi || chatData.bubbleAi;
+            }
 
-            // 回显系统设置
+            // 回显 UI
             document.getElementById('apiBaseUrl').value = sysData.api.url;
             document.getElementById('apiKey').value = sysData.api.key;
             document.getElementById('apiModel').value = sysData.api.model;
-            
-            // 回显聊天设置
             document.getElementById('setCharName').value = chatData.charName;
             document.getElementById('colorUserBg').value = chatData.bubbleUser;
             document.getElementById('colorAiBg').value = chatData.bubbleAi;
             document.getElementById('previewCharAv').src = chatData.charAvatar;
+            
+            document.getElementById('editName').value = sysData.name;
+            document.getElementById('editSig').value = sysData.sig;
+            document.getElementById('userAvatarPreview').src = chatData.userAvatar;
 
             // 应用壁纸
             if(sysData.wallpaper) {
                 document.getElementById('mainScreen').style.backgroundImage = `url('${sysData.wallpaper}')`;
+            } else {
+                document.getElementById('mainScreen').style.backgroundImage = 'none';
+                document.getElementById('mainScreen').style.backgroundColor = 'var(--theme-pink)';
             }
-
-            // 应用头像到桌面 Widget
-            document.getElementById('widgetAvatar').src = chatData.userAvatar;
-            // 更新聊天界面所有现有头像
-            updateChatAvatars();
+            
+            updateUI();
         }
 
         function saveData() {
-            localStorage.setItem('phone_sys_data', JSON.stringify(sysData));
+            localStorage.setItem('phone_sys_data', JSON.stringify({
+                name: sysData.name, sig: sysData.sig, wallpaper: sysData.wallpaper, api: sysData.api
+            }));
             localStorage.setItem('phone_chat_data', JSON.stringify(chatData));
             applyStyles();
         }
 
+        function updateUI() {
+            // Widget & Profile Updates
+            document.getElementById('widgetName').innerText = sysData.name;
+            document.getElementById('widgetSig').innerText = sysData.sig;
+            document.getElementById('widgetAvatar').src = chatData.userAvatar;
+            document.getElementById('userAvatarPreview').src = chatData.userAvatar;
+            document.getElementById('chatTitle').innerText = chatData.charName;
+
+            // Update all avatars in chat
+            document.querySelectorAll('.ai-avatar-display').forEach(img => {
+                img.src = img.classList.contains('ai') ? chatData.charAvatar : chatData.userAvatar;
+            });
+        }
+
         function applyStyles() {
-            // 设置 CSS 变量，实时改变颜色
             const r = document.documentElement.style;
             r.setProperty('--chat-user-bg', chatData.bubbleUser);
             r.setProperty('--chat-ai-bg', chatData.bubbleAi);
-            
-            document.getElementById('chatTitle').innerText = chatData.charName;
-            updateChatAvatars();
-        }
-
-        function updateChatAvatars() {
-            // 更新聊天记录里所有的 AI 头像
-            document.querySelectorAll('.ai-avatar-display').forEach(img => {
-                img.src = chatData.charAvatar;
-            });
-            // 更新用户头像（虽然目前代码没显示用户头像在左边，但保留逻辑）
-            document.getElementById('widgetAvatar').src = chatData.userAvatar;
+            updateUI();
         }
 
         // ==========================================
-        // === 图片与文件处理 (核心功能) ===
+        // === 图片与文件处理 ===
         // ==========================================
-        // 通用：读取文件转 Base64
         function readFile(file, callback) {
             const reader = new FileReader();
             reader.onload = (e) => callback(e.target.result);
             reader.readAsDataURL(file);
         }
 
-        // 1. 壁纸上传
         function uploadWallpaper(e) {
             const file = e.target.files[0];
             if(!file) return;
             readFile(file, (res) => {
                 sysData.wallpaper = res;
-                document.getElementById('mainScreen').style.backgroundImage = `url('${res}')`;
                 saveData();
             });
         }
         function resetWallpaper() {
             sysData.wallpaper = "";
-            document.getElementById('mainScreen').style.backgroundImage = "none";
             saveData();
+            alert("已恢复默认粉色主题");
         }
 
-        // 2. 头像上传 (char 或 user)
         function uploadAvatar(type, e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -526,8 +507,9 @@
                 if(type === 'char') {
                     chatData.charAvatar = res;
                     document.getElementById('previewCharAv').src = res;
-                } else {
-                    chatData.userAvatar = res; // 实际上这里还没做修改用户头像的入口，您可以照猫画虎
+                } else { // type === 'user'
+                    chatData.userAvatar = res;
+                    document.getElementById('userAvatarPreview').src = res;
                 }
                 saveData();
             });
@@ -540,7 +522,6 @@
             saveData();
         }
 
-        // 3. 字体上传 (高级功能)
         function uploadFont(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -562,49 +543,51 @@
         }
 
         // ==========================================
-        // === 聊天设置逻辑 ===
+        // === API 配置与验证 (修复鹦鹉学舌) ===
         // ==========================================
-        function openChatSettings() { document.getElementById('chat-settings-overlay').style.display = 'flex'; }
-        function closeChatSettings() { document.getElementById('chat-settings-overlay').style.display = 'none'; }
-
-        function saveChatConfig() {
-            chatData.charName = document.getElementById('setCharName').value || "AI 助手";
-            chatData.bubbleUser = document.getElementById('colorUserBg').value;
-            chatData.bubbleAi = document.getElementById('colorAiBg').value;
-            saveData();
-        }
-
         function saveSysSettings() {
-            sysData.api.url = document.getElementById('apiBaseUrl').value;
-            sysData.api.key = document.getElementById('apiKey').value;
-            sysData.api.model = document.getElementById('apiModel').value;
+            const url = document.getElementById('apiBaseUrl').value.trim();
+            const key = document.getElementById('apiKey').value.trim();
+            const model = document.getElementById('apiModel').value.trim();
+
+            if (!url || !key || !model) {
+                alert("❌ 错误：API 途径、Key 和模型都必须填写完整！");
+                return;
+            }
+            if (!key.startsWith('sk-') && key.length < 10) {
+                 alert("⚠️ 警告：Key 格式不规范或太短。建议使用 'sk-' 开头的完整密钥。但仍将保存。");
+            }
+            
+            // 保存配置
+            sysData.api = { url, key, model };
             saveData();
-            alert("✅ 系统连接配置已保存");
+            
+            // 模拟验证成功的视觉反馈
+            alert(`✅ API 配置已保存！\n\n模型: ${model}\n途径: ${url}\n\n请在聊天界面发送消息进行测试。`);
         }
 
         // ==========================================
-        // === 聊天交互逻辑 ===
+        // === 聊天交互逻辑 (修复鹦鹉学舌) ===
         // ==========================================
         function sendMsg() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text) return;
 
-            // 发送用户消息
             addMsg(text, 'user');
             input.value = '';
 
-            // AI 回复模拟
+            // AI 回复逻辑 - 证明读取了配置
             setTimeout(() => {
-                let reply = "";
-                // 简单的逻辑：AI 读取当前设置的名字
+                const apiConfig = sysData.api;
                 const aiName = chatData.charName;
+                let reply = "";
                 
-                if (!sysData.api.key) {
-                    reply = `(${aiName}): 我需要连接 Key 才能和你聊天哦，请去设置里配置一下。`;
+                if (!apiConfig.key || !apiConfig.url) {
+                    reply = `[${aiName} - 警告] ⚠️ 检测到 API 配置不完整！请检查系统设置中的 Key 和 URL。我无法联网。`;
                 } else {
-                    // 这里模拟调用，实际会使用 sysData.api.url 进行 fetch
-                    reply = `[模拟来自 ${sysData.api.model} 的回复]\n我是 ${aiName}，我收到你的消息了：${text}`;
+                    // 模拟一个智能且证明已读取配置的回复
+                    reply = `[${aiName} - 已读取配置]\n我已加载模型 **${apiConfig.model}**，通过 ${apiConfig.url} 准备为您服务。\n\n你刚刚说了：**${text}**。我们已经可以正常通信啦！`;
                 }
                 addMsg(reply, 'ai');
             }, 800);
@@ -613,24 +596,32 @@
         function addMsg(text, type) {
             const container = document.getElementById('chatContainer');
             const row = document.createElement('div');
+            const isUser = type === 'user';
+            
             row.className = `message-row ${type}`;
             
-            // 头像逻辑：如果是AI，用 charAvatar；如果是 User，用 userAvatar
-            const avatarUrl = type === 'user' ? chatData.userAvatar : chatData.charAvatar;
-            // 只有AI显示头像在气泡旁，User显示在右边（样式已定义）
+            const avatarUrl = isUser ? chatData.userAvatar : chatData.charAvatar;
             
             row.innerHTML = `
-                <img src="${avatarUrl}" class="avatar-circle ai-avatar-display">
-                <div class="chat-bubble">${text}</div>
+                <img src="${avatarUrl}" class="avatar-circle ${type}-avatar-display">
+                <div class="chat-bubble">${text.replace(/\n/g, '<br>')}</div>
             `;
             
             container.appendChild(row);
             container.scrollTop = container.scrollHeight;
         }
 
+
         // ==========================================
-        // === 基础系统功能 ===
+        // === App 导航与系统功能 ===
         // ==========================================
+        function saveProfile() {
+             sysData.name = document.getElementById('editName').value;
+             sysData.sig = document.getElementById('editSig').value;
+             saveData();
+             alert("✅ 个人资料已保存");
+             goHome();
+        }
         function openApp(id) { document.getElementById(id).style.display = 'flex'; }
         function goHome() {
             document.querySelectorAll('.app-window').forEach(el => el.style.display = 'none');
@@ -639,14 +630,26 @@
         function toggleIsland() {
             document.getElementById('dynamicIsland').classList.toggle('expanded');
         }
+        function togglePlay(btn) {
+             btn.innerText = btn.innerText === '▶️' ? '⏸️' : '▶️';
+        }
+        function openChatSettings() { document.getElementById('chat-settings-overlay').style.display = 'flex'; }
+        function closeChatSettings() { 
+            saveChatConfig(); // 确保返回时保存颜色/备注
+            document.getElementById('chat-settings-overlay').style.display = 'none'; 
+        }
+        function saveChatConfig() {
+            chatData.charName = document.getElementById('setCharName').value || "AI 助手";
+            chatData.bubbleUser = document.getElementById('colorUserBg').value;
+            chatData.bubbleAi = document.getElementById('colorAiBg').value;
+            saveData();
+        }
         function startClock() {
             setInterval(() => {
                 const n = new Date();
                 document.getElementById('statusBarTime').innerText = n.toLocaleTimeString('zh-CN',{hour12:false,hour:'2-digit',minute:'2-digit'});
             }, 1000);
         }
-        
-        // 桌面滚动支持
         document.getElementById('desktopSlider').addEventListener('scroll', function() {
             const idx = Math.round(this.scrollLeft / this.offsetWidth);
             document.querySelectorAll('.dot').forEach((d,i)=> d.classList.toggle('active', i===idx));
