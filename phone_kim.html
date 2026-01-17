@@ -2,374 +2,275 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的AI小手机</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Phone OS</title>
     <style>
-        /* ======================================= */
-        /* === 引入自定义字体 (已修正路径) === */
-        /* ======================================= */
-        @font-face {
-            font-family: 'GenYoGothicTW'; 
-            /* 假设 GenYoGothicTW-R.ttf 放在了根目录 */
-            src: url('GenYoGothicTW-R.ttf') format('truetype'); 
-            font-weight: normal;
-            font-style: normal;
+        :root {
+            --phone-width: 360px;
+            --phone-height: 760px;
+            --bezel-color: #1a1a1a;
+            --screen-radius: 40px;
+            --primary-color: #007aff;
         }
 
-        /* === 基础设置 === */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background-color: #f0f2f5;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; 
-            /* 引用您的自定义字体 */
-            font-family: 'GenYoGothicTW', "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-            overflow: hidden; 
-        }
-
-        /* === 手机外壳 === */
-        .phone-case {
-            width: 320px; height: 650px;
-            background: #111;
-            border-radius: 45px;
-            box-shadow: 0 0 0 10px #333, 0 20px 50px rgba(0,0,0,0.5);
-            position: relative; overflow: hidden;
-            border: 2px solid #444;
-        }
-
-        /* === 屏幕区域 === */
-        .screen {
-            width: 100%; height: 100%;
-            /* 默认壁纸 */
-            background: url('https://img.baidu.re/i/2025/12/guvqaq.jpeg') no-repeat center center/cover;
-            position: relative; overflow: hidden;
-        }
-
-        /* === 1. 顶部状态栏 === */
-        .status-bar-area {
-            position: absolute; top: 0; left: 0; width: 100%; height: 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 25px; font-size: 14px; color: white;
-            z-index: 500; font-weight: 600;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-
-        /* === 2. 灵动岛 (核心交互区) === */
-        .dynamic-island-trigger {
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            width: 100px; height: 30px;
-            background: #000; border-radius: 20px;
-            z-index: 600; cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; justify-content: center;
-            background-size: cover; background-position: center;
-        }
-        /* 展开状态 */
-        .dynamic-island-trigger.expanded {
-            width: 280px; height: 170px; 
-            border-radius: 35px; padding: 15px;
-            flex-direction: column; justify-content: flex-start;
-            background-color: #000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .island-content {
-            display: none; flex-direction: column; align-items: center;
-            width: 100%; height: 100%; color: white;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-        
-        /* 灵动岛内元素 */
-        .island-avatar { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px; object-fit: cover; border: 2px solid #fff; }
-        .island-input {
-            width: 90%; height: 30px; background: rgba(255,255,255,0.2);
-            border: none; border-radius: 8px; color: white; text-align: center;
-            margin-top: 8px; font-size: 12px;
-        }
-        .island-input::placeholder { color: rgba(255,255,255,0.7); }
-        
-        /* 按钮组 */
-        .island-btn-group { display: flex; gap: 15px; margin-top: 10px; }
-        .img-btn {
-            width: 40px; height: 40px; border-radius: 10px;
-            cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.3);
-            object-fit: contain; background: rgba(255,255,255,0.1); padding: 2px;
-        }
-        .img-btn:active { transform: scale(0.9); }
-
-        /* 语音气泡 */
-        .audio-bubble {
-            background: rgba(255,255,255,0.95); color: #000;
-            padding: 5px 12px; border-radius: 15px; font-size: 12px;
-            margin-bottom: 5px; max-width: 90%;
-            display: none; 
-        }
-
-        /* === 3. 桌面翻页容器 === */
-        .desktop-slider {
-            display: flex;
-            width: 100%; height: 100%;
-            overflow-x: auto; 
-            scroll-snap-type: x mandatory; 
-            scrollbar-width: none; 
-            padding-top: 70px; 
-            z-index: 10;
-        }
-        .desktop-slider::-webkit-scrollbar { display: none; }
-        
-        .page {
-            min-width: 100%; 
-            height: 100%;
-            scroll-snap-align: start; 
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            grid-template-rows: repeat(4, 80px);   
-            padding: 10px;
-            align-content: start;
-        }
-
-        /* 软件图标样式 */
-        .app-icon {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; text-decoration: none; color: white;
-            font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-            margin-bottom: 10px; cursor: pointer;
-        }
-        .app-icon img {
-            width: 52px; height: 52px;
-            border-radius: 12px; margin-bottom: 5px;
-            background: rgba(255,255,255,0.2);
-            object-fit: cover;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .app-icon:active img { filter: brightness(0.8); transform: scale(0.95); }
-
-        /* === 4. 应用窗口 (点进去后的页面) === */
-        .app-window {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; z-index: 800;
-            display: none; flex-direction: column;
-            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        .app-header {
-            height: 80px; background: #f8f8f8;
-            padding-top: 40px; text-align: center; font-weight: bold;
-            border-bottom: 1px solid #eee;
-        }
-        /* 布局松弛和全局边距优化 */
-        .app-body { 
-            flex: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-            color: #333; 
-        }
-
-        /* === 5. 底部白条 (修复版：绝对置顶) === */
-        .home-indicator {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
-            display: flex; justify-content: center; align-items: flex-end;
-            padding-bottom: 10px; z-index: 9999; cursor: pointer;
-        }
-        .home-bar {
-            width: 130px; height: 5px; background: white;
-            border-radius: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            pointer-events: none;
-        }
-        .app-active .home-bar { background: #222; }
-
-        /* ======================================= */
-        /* === 设置菜单和 API 界面样式优化 === */
-        /* ======================================= */
-        
-        h2 {
-            margin-bottom: 20px; 
-            letter-spacing: 0.5px;
-        }
-
-        /* 1. 设置主菜单链接优化 */
-        .setting-link-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 0; 
-            color: #333;
-            text-decoration: none;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 16px; 
-        }
-        .setting-link-item:last-child { border-bottom: none; }
-        .setting-link-item:active { background-color: #f8f8f8; }
-        .setting-link-item .arrow { color: #ccc; font-weight: 300; }
-        .setting-link-item .text { letter-spacing: 0.2px; }
-
-        /* 2. 配置组间距优化 */
-        .setting-group { margin-bottom: 25px; }
-
-        /* 3. 标签（Label）优化 */
-        .api-label {
-            margin-bottom: 10px; 
-            font-size: 15px; 
-            color: #333; 
-            letter-spacing: 0.5px; 
-        }
-
-        /* 4. 输入框/下拉框优化 */
-        .api-input,
-        .api-select {
-            display: block; 
-            width: 100%;
-            padding: 12px 12px; 
-            font-size: 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px; 
-        }
-
-        /* 5. 按钮优化 */
-        .api-button {
-            width: 100%; 
-            padding: 14px; 
-            margin-top: 15px; 
-            font-size: 16px;
-            border: none;
-            border-radius: 10px;
-            background-color: #007aff;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.8px; 
-        }
-        .api-button:active { filter: brightness(0.9); }
-
-        /* 6. 状态信息优化 */
-        .status-message {
-            margin-top: 20px;
-            padding: 15px;
-            font-size: 14px;
-            line-height: 1.6; 
-            border-radius: 10px;
-            background-color: #f8f8f8;
-            text-align: center;
-        }
-        .status-message.success { background-color: #e6ffed; color: #008000; }
-        .status-message.error { background-color: #ffe6e6; color: #d90000; }
-
-        /* ======================================= */
-        /* === 壁纸设置界面缩略图样式 === */
-        /* ======================================= */
-        .preset-wallpaper-thumb {
-            width: 70px; 
-            height: 100px; 
-            object-fit: cover; 
-            border-radius: 8px;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .preset-wallpaper-thumb:hover,
-        .preset-wallpaper-thumb:active {
-            border-color: #007aff; 
-            transform: scale(1.05);
-        }
-
-        /* ======================================= */
-        /* === [新增] AI 聊天界面样式 (微信风格) === */
-        /* ======================================= */
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            background-color: #f7f7f7; /* 浅灰色背景，模仿微信/QQ */
-        }
-
-        /* 单条消息的容器 */
-        .message-row {
-            display: flex;
-            margin-bottom: 15px;
-        }
-        /* 接收者 (AI) */
-        .message-row.left { justify-content: flex-start; }
-        /* 发送者 (用户) */
-        .message-row.right { justify-content: flex-end; }
-
-        /* 头像样式 */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 10px;
-        }
-        .message-row.left .avatar { margin-right: 5px; }
-        .message-row.right .avatar { margin-left: 5px; }
-
-        /* 气泡样式 */
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 12px;
-            border-radius: 10px;
-            position: relative;
-            font-size: 14px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
-        }
-        /* AI 气泡（浅色） */
-        .message-row.left .message-bubble {
-            background-color: #fff;
-            border-top-left-radius: 3px; /* 顶部左侧尖角效果 */
-            color: #333;
-        }
-        /* 用户气泡（深色/主题色） */
-        .message-row.right .message-bubble {
-            background-color: #a9e875; /* 微信绿色主题 */
-            border-top-right-radius: 3px; /* 顶部右侧尖角效果 */
-            color: #333;
-        }
-
-        /* === 输入区域 === */
-        .chat-input-area {
-            height: 50px;
-            background-color: #f9f9f9;
-            border-top: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            padding: 5px 10px;
-        }
-        .chat-input-area input[type="text"] {
-            flex: 1;
-            height: 38px;
-            padding: 0 15px;
-            border: none;
-            background-color: #fff;
-            border-radius: 20px;
-            margin-right: 8px;
-            font-size: 15px;
-            outline: none;
-        }
-        /* 语音/发送按钮 */
-        .chat-action-btn {
-            width: 40px;
-            height: 40px;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
-            cursor: pointer;
-            color: #555;
-            transition: 0.1s;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        .chat-action-btn:active { transform: scale(0.9); }
 
-        /* 发送按钮主题色 */
-        .send-btn {
-            background-color: #07c160; /* 微信主题绿色 */
+        /* --- 手机外壳 --- */
+        .phone-case {
+            width: var(--phone-width);
+            height: var(--phone-height);
+            background: var(--bezel-color);
+            border-radius: 55px;
+            padding: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* --- 屏幕区域 --- */
+        .screen {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            border-radius: var(--screen-radius);
+            overflow: hidden; /* 关键：隐藏超出部分 */
+            position: relative;
+            /* 壁纸设置 */
+            background-image: url('https://img.baidu.re/i/2025/12/zcj2xa.jpeg');
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease;
+        }
+
+        /* --- 顶部状态栏 --- */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            box-sizing: border-box;
             color: white;
-            border-radius: 50%;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 600;
+            z-index: 100;
+            pointer-events: none; /* 让点击穿透给下方的触发区 */
+        }
+        
+        .status-left { display: flex; gap: 8px; }
+        .status-right { display: flex; gap: 5px; }
+
+        /* --- 灵动岛触发区 & 本体 --- */
+        .dynamic-island-trigger {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 40px;
+            z-index: 200;
+            cursor: pointer;
+            /* 调试时可以打开背景色看位置: background: rgba(255,0,0,0.2); */
+        }
+
+        .dynamic-island {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0px; /* 默认隐藏 */
+            height: 0px;
+            background: #000;
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 190;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* 灵动岛展开状态 */
+        .dynamic-island.active {
+            width: 300px;
+            height: 80px;
+            top: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .island-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.2s 0.2s; /* 延迟显示内容 */
+            width: 100%;
+            padding: 0 15px;
+        }
+        .dynamic-island.active .island-content {
+            opacity: 1;
+        }
+
+        .island-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #333;
+            background-size: cover;
+            cursor: pointer; /*以此切换模式*/
+        }
+        
+        .island-text-area {
+            flex: 1;
+        }
+        .island-text-area input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            width: 100%;
+        }
+        .island-text-area input:focus { outline: none; border-bottom: 1px solid #555; }
+
+        /* --- 桌面容器 (包含翻页) --- */
+        .desktop-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory; /* 核心：翻页吸附效果 */
+            scrollbar-width: none; /* 隐藏滚动条 */
+        }
+        .desktop-container::-webkit-scrollbar { display: none; }
+
+        .desktop-page {
+            min-width: 100%;
+            height: 100%;
+            scroll-snap-align: start;
+            padding: 60px 20px 100px 20px; /* 避开顶部和底部 */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- 桌面组件 & 图标 --- */
+        .widget-area {
+            width: 100%;
+            height: 140px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            box-sizing: border-box;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px 10px;
+        }
+
+        .app-icon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .app-icon-container:active { transform: scale(0.9); }
+
+        .app-icon {
+            width: 58px;
+            height: 58px;
+            background-color: rgba(255,255,255,0.2); /* 默认占位色 */
+            border-radius: 14px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .app-name {
+            color: white;
+            font-size: 11px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* --- APP 窗口 (层级) --- */
+        .app-window {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 500;
+            transform: translateY(100%); /* 默认向下隐藏 */
+            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding-top: 50px; /* 避开灵动岛区域 */
+        }
+        .app-window.open {
+            transform: translateY(0);
+        }
+
+        .sub-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f9f9f9;
+            z-index: 501;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            padding-top: 50px;
+        }
+        .sub-page.open { transform: translateX(0); }
+
+        /* --- 底部 Home Indicator --- */
+        .home-indicator-area {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            cursor: pointer;
+            /* background: rgba(0,0,0,0.1); 调试点击区 */ 
+        }
+
+        .home-indicator {
+            width: 130px;
+            height: 5px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: width 0.2s;
+        }
+        .home-indicator-area:active .home-indicator {
+            width: 100px;
+            background-color: #ddd;
         }
 
     </style>
@@ -377,544 +278,252 @@
 <body>
 
     <div class="phone-case">
+        <!-- 灵动岛触发区 (透明，位于顶部中央) -->
+        <div class="dynamic-island-trigger" onclick="toggleIsland()"></div>
+
         <div class="screen">
-            
-            <div class="status-bar-area">
-                <span id="clock">12:00</span>
-                <span style="pointer-events: none;">
-                    <span id="weather">☀️</span> 
-                    <span id="battery">100%</span>
-                </span>
-            </div>
-
-            <div class="dynamic-island-trigger" id="island" onclick="toggleIsland()">
-                <div class="island-content" id="islandContent" onclick="event.stopPropagation()">
-                    <img src="https://img.baidu.re/i/2025/12/gyw9xz.jpeg" id="islandAvatar" class="island-avatar">
-                    
-                    <div id="audioBubble" class="audio-bubble"></div>
-                    
-                    <div class="island-btn-group">
-                        <img src="https://img.baidu.re/i/2025/12/gxultd.png" class="img-btn" onclick="changeIsland('kuromi', event)">
-                        <img src="https://img.baidu.re/i/2025/12/gxvoni.png" class="img-btn" onclick="changeIsland('bear', event)">
-                        <img src="https://img.baidu.re/i/2025/12/gxw6h4.png" class="img-btn" onclick="changeIsland('clover', event)">
-                    </div>
-
-                    <input type="text" class="island-input" placeholder="点击这里修改文案..." onchange="updateText(this.value)">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span id="clock">12:00</span>
+                    <span id="weather">☀️</span>
+                </div>
+                <div class="status-right">
+                    <span>🔋 80%</span>
                 </div>
             </div>
 
-            <div class="desktop-slider">
-                
-                <div class="page page-1">
-                    <div class="app-icon" onclick="openApp('ai-app')">
-                        <img src="https://img.baidu.re/i/2025/12/gw1n4f.jpeg">
-                        <span>AI助手</span>
-                    </div>
-                    <div class="app-icon" onclick="openApp('settings-app')">
-                        <img src="https://img.baidu.re/i/2025/12/gvj0se.jpeg">
-                        <span>设置</span>
-                    </div>
-                    <div class="app-icon" onclick="openApp('gallery-app')">
-                        <img src="https://img.baidu.re/i/2025/12/gw27ij.jpeg">
-                        <span>相册</span>
-                    </div>
-                    <div class="app-icon" onclick="openApp('music-app')">
-                        <img src="https://img.baidu.re/i/2025/12/gw2drc.jpeg">
-                        <span>音乐</span>
-                    </div>
-                    <div class="app-icon" onclick="openApp('forum-app')">
-                        <img src="https://img.baidu.re/i/2025/12/gw2t70.jpeg">
-                        <span>论坛</span>
-                    </div>
-                    <div class="app-icon" onclick="openApp('extra-app')">
-                        <img src="https://img.baidu.re/i/2025/12/gw34t4.jpeg">
-                        <span>番外剧场</span>
+            <!-- 灵动岛本体 -->
+            <div class="dynamic-island" id="dynamicIsland">
+                <div class="island-content">
+                    <!-- 点击头像切换模式 -->
+                    <div class="island-avatar" id="islandAvatar" onclick="cycleIslandMode()"></div>
+                    <div class="island-text-area">
+                        <input type="text" id="islandInput" value="正在播放: 轻松时刻" placeholder="输入灵动岛文案...">
                     </div>
                 </div>
-
-                <div class="page page-2" style="display:flex; justify-content:center; align-items:center; color:rgba(255,255,255,0.5);">
-                    <div style="text-align:center;">
-                        <div style="font-size:40px; margin-bottom:10px;">📅</div>
-                        <span>待办事项</span>
-                    </div>
-                </div>
-
             </div>
 
-            <div id="ai-app" class="app-window">
-                <div class="app-header">AI 聊天助手</div>
+            <!-- 桌面页面容器 (支持翻页) -->
+            <div class="desktop-container">
                 
-                <div class="chat-container" id="ai-chat-container">
+                <!-- 第一页：主应用 -->
+                <div class="desktop-page">
+                    <!-- 小组件 -->
+                    <div class="widget-area">
+                        <h3 style="margin:0;">Today</h3>
+                        <p style="font-size: 24px; font-weight: bold;">Keep Creative</p>
+                        <div style="font-size: 12px; opacity: 0.8;">Antigravity OS beta 1.0</div>
                     </div>
-                
-                <div class="chat-input-area">
-                    <span class="chat-action-btn">🎤</span>
-                    <input type="text" id="chat-input" placeholder="输入消息...">
-                    <span class="chat-action-btn send-btn" id="send-btn">发送</span>
-                </div>
-                
-            </div>
 
-            <div id="settings-app" class="app-window">
-                <div class="app-header">系统设置</div>
-                <div class="app-body">
-                    
-                    <div id="settings-main-menu">
-                        <a href="#" onclick="loadApiSettings(event)" class="setting-link-item">
-                            <span class="text">🤖 AI 服务商配置</span>
-                            <span class="arrow">></span>
-                        </a>
-                        <a href="#" onclick="openWallpaperSettings(event)" class="setting-link-item">
-                            <span class="text">📱 修改手机壁纸</span>
-                            <span class="arrow">></span>
-                        </a>
-                        <a href="#" onclick="openWidgetSettings(event)" class="setting-link-item">
-                            <span class="text">🧩 小组件管理</span>
-                            <span class="arrow">></span>
-                        </a>
-                    </div>
-                    
-                    <div id="settings-sub-page" style="display:none;">
+                    <!-- App 图标 -->
+                    <div class="app-grid">
+                        <!-- 1. AI聊天助手 -->
+                        <div class="app-icon-container" onclick="openApp('app-ai-chat')">
+                            <div class="app-icon" id="icon-ai" style="background-color: #07c160;"></div>
+                            <span class="app-name">AI助手</span>
                         </div>
+                        <!-- 2. 设置 -->
+                        <div class="app-icon-container" onclick="openApp('app-settings')">
+                            <div class="app-icon" id="icon-settings" style="background-color: #8e8e93;"></div>
+                            <span class="app-name">设置</span>
+                        </div>
+                        <!-- 3. 相册 -->
+                        <div class="app-icon-container" onclick="openApp('app-gallery')">
+                            <div class="app-icon" id="icon-gallery" style="background-color: linear-gradient(#ffcc00, #ff9500);"></div>
+                            <span class="app-name">相册</span>
+                        </div>
+                        <!-- 4. 音乐 -->
+                        <div class="app-icon-container" onclick="openApp('app-music')">
+                            <div class="app-icon" id="icon-music" style="background-color: #ff2d55;"></div>
+                            <span class="app-name">音乐</span>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- 第二页：更多应用 (翻页可见) -->
+                <div class="desktop-page">
+                    <div class="app-grid">
+                         <!-- 5. 论坛 -->
+                         <div class="app-icon-container" onclick="openApp('app-forum')">
+                            <div class="app-icon" id="icon-forum" style="background-color: #5856d6;"></div>
+                            <span class="app-name">论坛</span>
+                        </div>
+                        <!-- 6. 番外指令 -->
+                        <div class="app-icon-container" onclick="openApp('app-roleplay')">
+                            <div class="app-icon" id="icon-roleplay" style="background-color: #ff6482;"></div>
+                            <span class="app-name">番外指令</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- End Desktop Container -->
+
+            <!-- 应用窗口 (HTML 结构预埋) -->
+            <div id="app-ai-chat" class="app-window">
+                <div style="padding:20px;">
+                    <h2>AI 聊天助手</h2>
+                    <button onclick="openSubFeature('chat-detail')">进入聊天详情 (测试层级)</button>
+                    <!-- 子级页面 -->
+                    <div id="chat-detail" class="sub-page">
+                        <div style="padding:20px;">
+                            <h3>聊天详情页</h3>
+                            <p>点击底部白条返回上一级。</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div id="app-settings" class="app-window">
+                <div style="padding:20px;"><h2>设置 API Key</h2></div>
+            </div>
             
-            <div id="gallery-app" class="app-window">
-                <div class="app-header">我的相册</div>
-                <div class="app-body">相册内容加载中...</div>
-            </div>
-            
-            <div id="music-app" class="app-window">
-                <div class="app-header">音乐播放器</div>
-                <div class="app-body">🎵 正在播放: With You</div>
+            <div id="app-gallery" class="app-window">
+                <div style="padding:20px;"><h2>我的相册 (0/15)</h2></div>
             </div>
 
-            <div id="forum-app" class="app-window">
-                <div class="app-header">社区论坛</div>
-                <div class="app-body">欢迎来到讨论区...</div>
+            <div id="app-music" class="app-window">
+                <div style="padding:20px;"><h2>AI 共听</h2></div>
             </div>
 
-            <div id="extra-app" class="app-window">
-                <div class="app-header">番外剧场</div>
-                <div class="app-body">选择你的角色扮演剧本...</div>
+            <div id="app-forum" class="app-window">
+                <div style="padding:20px;"><h2>社区论坛</h2></div>
             </div>
 
-            <div class="home-indicator" id="homeBtn" onclick="handleHomeClick(event)">
-                <div class="home-bar"></div>
+            <div id="app-roleplay" class="app-window">
+                <div style="padding:20px;"><h2>番外: 角色扮演</h2></div>
+            </div>
+
+
+            <!-- 底部导航条 (Home Indicator) -->
+            <div class="home-indicator-area" onclick="handleHomeAction()">
+                <div class="home-indicator"></div>
             </div>
 
         </div>
     </div>
 
     <script>
-        // === 1. 时间与天气逻辑 ===
-        function updateTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            document.getElementById('clock').innerText = timeStr;
-            
-            const weathers = ['☀️', '☁️', '🌧️', '⚡', '❄️'];
-            if(Math.random() > 0.9) {
-                document.getElementById('weather').innerText = weathers[Math.floor(Math.random() * weathers.length)];
-            }
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        // === 2. 灵动岛逻辑 ===
-        const island = document.getElementById('island');
-        const islandContent = document.getElementById('islandContent');
-        const audioBubble = document.getElementById('audioBubble');
-        const islandAvatar = document.getElementById('islandAvatar');
-        let islandState = false;
-
-        const islandConfig = {
-            'kuromi': {
-                img: 'https://img.baidu.re/i/2025/12/gxultd.png',
-                voice: '👿 哼，本小姐今天心情不错！'
-            },
-            'bear': {
-                img: 'https://img.baidu.re/i/2025/12/gxvoni.png',
-                voice: '🥞 呼呼...好想吃蜂蜜松饼啊...'
-            },
-            'clover': {
-                img: 'https://img.baidu.re/i/2025/12/gxw6h4.png',
-                voice: '🍀 给你带来一点点幸运哦！'
+        // ================= 配置区域 (在此处填入你的URL) =================
+        const CONFIG = {
+            // 灵动岛图片素材
+            islandImages: [
+                'https://placehold.co/100x100/purple/white?text=Kuromi', // 替换为库洛米 URL
+                'https://placehold.co/100x100/brown/white?text=Bear',   // 替换为轻松熊 URL
+                'https://placehold.co/100x100/green/white?text=Clover'  // 替换为四叶草 URL
+            ],
+            // App 图标 URL (如果留空则使用默认色块)
+            appIcons: {
+                ai: '', 
+                settings: '',
+                gallery: '',
+                music: '',
+                forum: '',
+                roleplay: ''
             }
         };
 
+        // ================= 1. 状态栏逻辑 (时间 + 天气) =================
+        function updateStatus() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+        }
+        setInterval(updateStatus, 1000);
+        updateStatus();
+
+        // 随机天气 Emoji
+        const weathers = ['☀️', '☁️', '🌧️', '⛈️', '❄️', '🌤️'];
+        function randomWeather() {
+            const w = weathers[Math.floor(Math.random() * weathers.length)];
+            document.getElementById('weather').innerText = w;
+        }
+        setInterval(randomWeather, 300000); // 5分钟变一次
+        randomWeather();
+
+
+        // ================= 2. 灵动岛交互逻辑 =================
+        let islandActive = false;
+        let currentModeIndex = 0;
+
+        // 加载初始头像
+        const avatarEl = document.getElementById('islandAvatar');
+        avatarEl.style.backgroundImage = `url(${CONFIG.islandImages[0]})`;
+
         function toggleIsland() {
-            islandState = !islandState;
-            if (islandState) {
-                island.classList.add('expanded');
-                setTimeout(() => islandContent.style.display = 'flex', 200);
+            const island = document.getElementById('dynamicIsland');
+            islandActive = !islandActive;
+            if(islandActive) {
+                island.classList.add('active');
             } else {
-                islandContent.style.display = 'none';
-                island.classList.remove('expanded');
-                audioBubble.style.display = 'none'; 
+                island.classList.remove('active');
             }
         }
 
-        function changeIsland(type, event) {
-            if(event) event.stopPropagation(); 
-            const config = islandConfig[type];
-            if(config) {
-                islandAvatar.src = config.img;
-                audioBubble.innerText = config.voice;
-                audioBubble.style.display = 'block';
-                setTimeout(() => {
-                    audioBubble.style.display = 'none';
-                }, 3000);
-            }
+        function cycleIslandMode() {
+            // 切换模式逻辑
+            currentModeIndex = (currentModeIndex + 1) % CONFIG.islandImages.length;
+            avatarEl.style.backgroundImage = `url(${CONFIG.islandImages[currentModeIndex]})`;
+            
+            // 可选：根据模式改变默认文案
+            const input = document.getElementById('islandInput');
+            const modes = ['库洛米模式', '轻松熊模式', '幸运四叶草'];
+            input.placeholder = modes[currentModeIndex];
         }
 
-        function updateText(val) {
-            console.log("文案更新为:", val);
-        }
 
-        // === 3. APP 打开与退出逻辑 ===
-        let navStack = []; 
+        // ================= 3. 层级导航系统 (History Stack) =================
+        // 核心逻辑：记录用户打开了什么，点击白条时弹出栈顶元素
+        
+        let navigationStack = []; // 栈结构
 
+        // 打开一级应用
         function openApp(appId) {
             const app = document.getElementById(appId);
             if(app) {
-                app.style.display = 'flex'; 
-                navStack.push(appId); 
-                document.getElementById('homeBtn').classList.add('app-active');
-                
-                // [新增] 专门处理 AI 聊天应用的初始化
-                if (appId === 'ai-app') {
-                    setupChatListeners();
-                }
+                app.classList.add('open');
+                navigationStack.push({ type: 'app', id: appId });
+                console.log('Stack:', navigationStack);
             }
         }
 
-        function handleHomeClick(e) {
-            if(e) e.stopPropagation(); 
-
-            if (navStack.length > 0) {
-                const currentAppId = navStack.pop();
-                const currentApp = document.getElementById(currentAppId);
-                if(currentApp) currentApp.style.display = 'none';
-
-                if (navStack.length === 0) {
-                    document.getElementById('homeBtn').classList.remove('app-active');
-                }
-            }
-        }
-        
-        // -----------------------------------------------------
-        // 以下是设置 App 的子页面配置和功能逻辑
-        // -----------------------------------------------------
-
-        // 1. 返回设置主菜单 (API 和壁纸模块共用)
-        function showSettingsMainMenu(event) {
-            if(event) event.preventDefault();
-            document.getElementById('settings-sub-page').style.display = 'none';
-            document.getElementById('settings-main-menu').style.display = 'block';
-        }
-
-
-        /* ======================================= */
-        /* === 4. API 配置模块内容 === */
-        /* ======================================= */
-
-        const API_CONFIG_HTML = `
-            <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
-                < 返回系统设置
-            </button>
-            <div class="api-settings-container">
-                <h2>🤖 AI 服务商配置</h2>
-                
-                <div class="setting-group">
-                    <label for="api-provider" class="api-label">选择 API 服务商：</label>
-                    <select id="api-provider" class="api-select">
-                        <option value="openai">GPT (OpenAI)</option>
-                        <option value="gemini">Gemini (Google)</option>
-                        <option value="deepseek">DeepSeek</option>
-                        <option value="custom">自定义/其他 (公益站点)</option>
-                    </select>
-                </div>
-                
-                <div class="setting-group">
-                    <label for="api-key" class="api-label">API Key / 密钥：</label>
-                    <input type="password" id="api-key" class="api-input" placeholder="请输入您的 API 密钥">
-                </div>
-                
-                <div class="setting-group" id="custom-url-group" style="display:none;">
-                    <label for="custom-url" class="api-label">API 途径 (站点网址)：</label>
-                    <input type="url" id="custom-url" class="api-input" placeholder="例如: https://api.example.com/v1">
-                </div>
-                
-                <div class="setting-group">
-                    <label for="model-name" class="api-label">AI 模型名称：</label>
-                    <select id="model-name" class="api-select">
-                        <option value="gpt-4o">gpt-4o</option>
-                        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-                        <option value="deepseek-chat">deepseek-chat</option>
-                    </select>
-                </div>
-                
-                <button id="test-connection-btn" class="api-button">测试并保存配置</button>
-                
-                <p id="connection-status" class="status-message">等待测试...</p>
-            </div>
-        `;
-
-        function initializeApiSettingsInteractions() {
-            const providerSelect = document.getElementById('api-provider');
-            const urlGroup = document.getElementById('custom-url-group');
-            const testBtn = document.getElementById('test-connection-btn');
-            
-            if(providerSelect) {
-                providerSelect.addEventListener('change', function() {
-                    if (this.value === 'custom') {
-                        urlGroup.style.display = 'block';
-                    } else {
-                        urlGroup.style.display = 'none';
-                    }
-                });
-                if (providerSelect.value === 'custom') {
-                    urlGroup.style.display = 'block';
-                }
-            }
-            
-            if (testBtn) {
-                testBtn.addEventListener('click', function() {
-                    const statusMsg = document.getElementById('connection-status');
-                    statusMsg.className = 'status-message'; 
-                    statusMsg.innerText = '正在测试连接...请稍候。';
-                    
-                    setTimeout(() => {
-                        const apiKey = document.getElementById('api-key').value;
-                        if (apiKey && apiKey.length > 10) {
-                            statusMsg.innerText = '✅ 连接测试成功！配置已保存。';
-                            statusMsg.classList.add('success');
-                        } else {
-                            statusMsg.innerText = '❌ 连接失败：API Key 似乎是空的或格式不正确。';
-                            statusMsg.classList.add('error');
-                        }
-                    }, 1500); 
-                });
+        // 打开二级页面 (App内部功能)
+        function openSubFeature(subId) {
+            const sub = document.getElementById(subId);
+            if(sub) {
+                sub.classList.add('open');
+                navigationStack.push({ type: 'sub', id: subId });
+                console.log('Stack:', navigationStack);
             }
         }
 
-        // 加载 API 配置界面
-        function loadApiSettings(event) {
-            if(event) event.preventDefault();
-            const subPageContainer = document.getElementById('settings-sub-page');
-            const mainMenu = document.getElementById('settings-main-menu');
-            
-            subPageContainer.innerHTML = API_CONFIG_HTML;
-            
-            mainMenu.style.display = 'none';
-            subPageContainer.style.display = 'block';
-
-            initializeApiSettingsInteractions(); 
-        }
-
-        /* ======================================= */
-        /* === 5. 壁纸配置模块内容 === */
-        /* ======================================= */
-
-        const WALLPAPER_CONFIG_HTML = `
-            <button class="api-button" onclick="showSettingsMainMenu(event)" style="width:auto; margin-bottom: 30px; background-color: #ddd; color: #333; padding: 8px 15px; font-size: 14px;">
-                < 返回系统设置
-            </button>
-            <div class="wallpaper-settings-container">
-                <h2>🖼️ 更换手机壁纸</h2>
-                
-                <div class="setting-group">
-                    <label for="wallpaper-file-upload" class="api-label">从相册/本地选择图片：</label>
-                    <input type="file" id="wallpaper-file-upload" class="api-input" accept="image/*" style="border:none; padding-left:0;">
-                    <p style="font-size:12px; color:#999; margin-top:5px;">图片只存储在您的浏览器缓存中，不会被上传。</p>
-                </div>
-                
-                <div style="text-align:center; margin: 25px 0; color:#ccc;">— 或 —</div>
-
-                <div class="setting-group">
-                    <label for="wallpaper-url-input" class="api-label">输入网络图片 URL 地址：</label>
-                    <input type="url" id="wallpaper-url-input" class="api-input" placeholder="例如: https://example.com/new_bg.jpg">
-                </div>
-
-                <button class="api-button" onclick="applyWallpaperFromUrl()">应用网络图片为壁纸</button>
-                
-                <div style="text-align:center; margin: 25px 0; color:#ccc;">— 或 —</div>
-                
-                <div class="setting-group">
-                    <label class="api-label">选择预设壁纸：</label>
-                    <div id="preset-wallpaper-list" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                        <img src="https://img.baidu.re/i/2025/12/guvqaq.jpeg" class="preset-wallpaper-thumb" onclick="applyWallpaperUrl('https://img.baidu.re/i/2025/12/guvqaq.jpeg')">
-                        <img src="https://img.baidu.re/i/2025/12/gyw9xz.jpeg" class="preset-wallpaper-thumb" onclick="applyWallpaperUrl('https://img.baidu.re/i/2025/12/gyw9xz.jpeg')">
-                        <img src="https://img.baidu.re/i/2025/12/gw2t70.jpeg" class="preset-wallpaper-thumb" onclick="applyWallpaperUrl('https://img.baidu.re/i/2025/12/gw2t70.jpeg')">
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // 加载壁纸设置界面
-        function openWallpaperSettings(event) {
-            if(event) event.preventDefault();
-            const subPageContainer = document.getElementById('settings-sub-page');
-            const mainMenu = document.getElementById('settings-main-menu');
-            
-            subPageContainer.innerHTML = WALLPAPER_CONFIG_HTML;
-            
-            mainMenu.style.display = 'none';
-            subPageContainer.style.display = 'block';
-
-            // 运行核心交互逻辑
-            initializeWallpaperInteractions();
-        }
-
-        // [新增] 壁纸更换核心逻辑
-        
-        // 1. URL 模式：应用通过输入框粘贴的 URL
-        function applyWallpaperFromUrl() {
-            const urlInput = document.getElementById('wallpaper-url-input');
-            const url = urlInput.value.trim();
-            if (url) {
-                applyNewWallpaper(url);
-                urlInput.value = ''; // 清空输入框
-            } else {
-                alert('请输入有效的图片 URL 地址！');
-            }
-        }
-
-        // 2. 预设模式：应用预设或外部点击的 URL
-        function applyWallpaperUrl(url) {
-            if (url) {
-                applyNewWallpaper(url);
-            }
-        }
-
-        // 3. 核心函数：实际更换屏幕背景
-        function applyNewWallpaper(source) {
-            const screen = document.querySelector('.screen');
-            // 设置背景图片，并覆盖掉原来的任何样式
-            screen.style.backgroundImage = `url('${source}')`;
-            screen.style.backgroundRepeat = 'no-repeat';
-            screen.style.backgroundPosition = 'center center';
-            screen.style.backgroundSize = 'cover';
-            
-            // 提示用户并返回设置主菜单
-            alert('✅ 壁纸已更换成功！');
-            showSettingsMainMenu(); 
-        }
-
-        // 4. 初始化文件选择器交互 (处理本地文件上传)
-        function initializeWallpaperInteractions() {
-            const fileInput = document.getElementById('wallpaper-file-upload');
-            
-            if (fileInput) {
-                fileInput.addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            // Base64 URL (e.target.result) 作为背景源
-                            applyNewWallpaper(e.target.result);
-                        };
-                        reader.readAsDataURL(file); // 读取文件并转换成 Base64
-                    }
-                });
-            }
-        }
-        
-        // [TODO: 其他设置功能占位函数]
-        function openWidgetSettings(event) {
-            event.preventDefault();
-            alert('即将打开小组件管理界面...');
-        }
-
-        /* ======================================= */
-        /* === 6. AI 聊天消息发送逻辑 (新功能) === */
-        /* ======================================= */
-
-        // [新增] 辅助函数：创建消息气泡的 HTML 结构
-        function createMessageElement(message, isUser) {
-            const row = document.createElement('div');
-            // 根据发送者设置方向 ('right' 是用户, 'left' 是 AI)
-            row.className = `message-row ${isUser ? 'right' : 'left'}`;
-            
-            // 默认头像 URLs (您可以自行替换)
-            const userAvatar = 'https://img.baidu.re/i/2025/12/gxultd.png'; // 用户 (库洛米)
-            const aiAvatar = 'https://img.baidu.re/i/2025/12/gyw9xz.jpeg'; // AI (默认)
-
-            let html = '';
-            if (!isUser) {
-                // AI 消息：头像在左
-                html += `<img src="${aiAvatar}" class="avatar" alt="AI Avatar">`;
-            }
-            
-            // 气泡内容
-            html += `<div class="message-bubble">${message}</div>`;
-            
-            if (isUser) {
-                // 用户消息：头像在右
-                html += `<img src="${userAvatar}" class="avatar" alt="User Avatar">`;
+        // 处理底部白条点击 (层级退出)
+        function handleHomeAction() {
+            if (navigationStack.length === 0) {
+                console.log("Already at Home Desktop");
+                return; // 已经在桌面，不做操作
             }
 
-            row.innerHTML = html;
-            return row;
-        }
-
-        // [新增] 核心函数：发送消息并更新 UI
-        function sendMessage() {
-            const inputElement = document.getElementById('chat-input');
-            const container = document.getElementById('ai-chat-container');
-            const messageText = inputElement.value.trim();
-
-            if (messageText === "") {
-                return; // 忽略空消息
-            }
-
-            // 1. 生成用户消息气泡并添加到容器
-            const userMessage = createMessageElement(messageText, true);
-            container.appendChild(userMessage);
-
-            // 2. 清空输入框
-            inputElement.value = '';
-
-            // 3. 自动滚动到底部
-            scrollToBottom(container);
-
-            // 4. [TODO] 模拟 AI 回复 (未来这里将调用 API)
-            simulateAiResponse(container);
-        }
-
-        // [新增] 辅助函数：自动滚动到底部
-        function scrollToBottom(element) {
-            element.scrollTop = element.scrollHeight;
-        }
-
-        // [新增] 辅助函数：监听输入框和按钮
-        function setupChatListeners() {
-            const sendBtn = document.getElementById('send-btn');
-            const inputElement = document.getElementById('chat-input');
+            const current = navigationStack.pop(); // 取出最后进入的页面
             
-            // 监听发送按钮点击
-            sendBtn.onclick = sendMessage;
+            if (current.type === 'sub') {
+                // 关闭二级页面，留在 App 内
+                document.getElementById(current.id).classList.remove('open');
+            } else if (current.type === 'app') {
+                // 关闭 App，回到桌面
+                document.getElementById(current.id).classList.remove('open');
+            }
+            console.log('Stack:', navigationStack);
+        }
 
-            // 监听输入框回车键
-            inputElement.onkeyup = function(event) {
-                if (event.key === 'Enter') {
-                    sendMessage();
-                }
-            };
+        // ================= 4. 初始化图片资源 =================
+        function initIcons() {
+            // 这里将 CONFIG 中的 url 绑定到 DOM
+            if(CONFIG.appIcons.ai) document.getElementById('icon-ai').style.backgroundImage = `url(${CONFIG.appIcons.ai})`;
+            // ... 其他图标同理，等你填入URL后可自行解开注释
         }
-        
-        // [新增] 模拟 AI 回复 (待未来替换为真正的 API 调用)
-        function simulateAiResponse(container) {
-            // 模拟打字延迟
-            setTimeout(() => {
-                const aiResponse = "收到您的消息！我们正在处理中。 (这是 AI 模拟回复)";
-                const aiMessage = createMessageElement(aiResponse, false);
-                container.appendChild(aiMessage);
-                scrollToBottom(container);
-            }, 800); 
-        }
+        initIcons();
 
     </script>
 </body>
